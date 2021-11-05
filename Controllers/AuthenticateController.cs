@@ -9,14 +9,12 @@ using MeAnotoApi.Authentication;
 using MeAnotoApi.Models.Users;
 using MeAnotoApi.Models.Users.Default;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace MeAnotoApi.Controllers {
-	[Authorize]
 	[Route("Api/Authentication")]
 	[ApiController]
 	public class AuthenticateController : ControllerBase {
@@ -78,7 +76,7 @@ namespace MeAnotoApi.Controllers {
 				var result = await this._UserManager.CreateAsync(user, model.Password);
 				return !result.Succeeded
 					? this.BadRequest(new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." })
-					: this.Ok(new Response { Status = "Success", Message = "User created successfully!" });
+					: this.Ok(new Response { Status = "Ok", Message = "Created successfully" });
 			}
 			return this.Unauthorized();
 		}
@@ -115,7 +113,7 @@ namespace MeAnotoApi.Controllers {
 			if (await this._RoleManager.RoleExistsAsync(UserRoles.Root)) {
 				_ = await this._UserManager.AddToRoleAsync(user, UserRoles.Root);
 			}
-			return this.Ok(new Response { Status = "Success", Message = "User created successfully!" });
+			return this.Ok(new Response { Status = "Ok", Message = "Created successfully" });
 		}
 	}
 }

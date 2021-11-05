@@ -14,11 +14,11 @@ namespace MeAnotoApi.Controllers {
 	[Authorize]
 	[ApiController]
 	[EnableCors("FrontendCors")]
-	[Route("Api/Institución")]
+	[Route("Api/Institution")]
 	public class InstitutionController : ControllerBase {
 		private readonly MeAnotoContext _Context;
 		public InstitutionController(MeAnotoContext context) => this._Context = context;
-		[HttpGet("Todos")]
+		[HttpGet("All")]
 		public async Task<ActionResult<IEnumerable<Institution>>> Get() => await this._Context.Institutions.ToListAsync();
 		[HttpGet("{id}")]
 		public async Task<ActionResult<Institution>> Get(int id) {
@@ -29,7 +29,7 @@ namespace MeAnotoApi.Controllers {
 		public async Task<ActionResult<Institution>> Post(Institution entity) {
 			_ = this._Context.Institutions.Add(entity);
 			_ = await this._Context.SaveChangesAsync();
-			return this.Ok(new Response { Status = "Ok", Message = "Institución creada con éxito" });
+			return this.Ok(new Response { Status = "Ok", Message = "Created successfully" }); ;
 		}
 	}
 }
