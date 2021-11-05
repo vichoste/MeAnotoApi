@@ -1,4 +1,4 @@
-﻿namespace MeAnotoApi.Models.Authentication {
+﻿namespace MeAnotoApi.Authentication {
 	public sealed class DefaultRegisterModel : RegisterModel {
 		public string Run { get; set; }
 		public string FirstName { get; set; }

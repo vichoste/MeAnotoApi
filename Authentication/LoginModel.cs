@@ -1,4 +1,4 @@
-﻿namespace MeAnotoApi.Models.Authentication {
+﻿namespace MeAnotoApi.Authentication {
 	public class LoginModel {
 		public string Email { get; set; }
 		public string Password { get; set; }

@@ -5,10 +5,9 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-using MeAnotoApi.Models.Authentication;
+using MeAnotoApi.Authentication;
 using MeAnotoApi.Models.Users;
 using MeAnotoApi.Models.Users.Default;
-using MeAnotoApi.Users.Authentication;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 
+using MeAnotoApi.Authentication;
 using MeAnotoApi.Contexts;
-using MeAnotoApi.Models.Authentication;
 using MeAnotoApi.Models.Entities;
 
 using Microsoft.AspNetCore.Authorization;
