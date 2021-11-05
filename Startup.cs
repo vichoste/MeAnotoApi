@@ -1,11 +1,17 @@
-using MeAnotoApi.Contexts;
+using System.Text;
 
+using MeAnotoApi.Contexts;
+using MeAnotoApi.Models.Users;
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace MeAnotoApi {
@@ -18,6 +24,22 @@ namespace MeAnotoApi {
 			_ = services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "MeAnotoApi", Version = "v1" }));
 			var connection = this.Configuration.GetConnectionString("Database");
 			_ = services.AddDbContext<MeAnotoContext>(options => options.UseMySql(connection, ServerVersion.AutoDetect(connection)));
+			_ = services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<MeAnotoContext>().AddDefaultTokenProviders();
+			_ = services.AddAuthentication(options => {
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+			}).AddJwtBearer(options => {
+				options.SaveToken = true;
+				options.RequireHttpsMetadata = false;
+				options.TokenValidationParameters = new TokenValidationParameters() {
+					ValidateIssuer = true,
+					ValidateAudience = true,
+					ValidAudience = this.Configuration["JWT:ValidAudience"],
+					ValidIssuer = this.Configuration["JWT:ValidIssuer"],
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this.Configuration["JWT:Secret"]))
+				};
+			});
 			_ = services.AddCors(options => options.AddPolicy("FrontendCors", builder => _ = builder.WithOrigins("http://localhost:8080", "http://127.0.0.1:8080").AllowAnyHeader().AllowAnyMethod()));
 		}
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -31,9 +53,7 @@ namespace MeAnotoApi {
 			_ = app.UseCors("FrontendCors");
 			_ = app.UseAuthentication();
 			_ = app.UseAuthorization();
-			_ = app.UseEndpoints(endpoints => {
-				_ = endpoints.MapControllers();
-			});
+			_ = app.UseEndpoints(endpoints => _ = endpoints.MapControllers());
 		}
 	}
 }
