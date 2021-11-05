@@ -23,7 +23,7 @@ namespace MeAnotoApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("InstitutionId")
+                    b.Property<int?>("InstitutionId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -42,7 +42,7 @@ namespace MeAnotoApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("CampusSingularId")
+                    b.Property<int?>("CampusSingularId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -61,7 +61,7 @@ namespace MeAnotoApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("CareerId")
+                    b.Property<int?>("CareerId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -88,7 +88,7 @@ namespace MeAnotoApi.Migrations
                     b.ToTable("Institutions");
                 });
 
-            modelBuilder.Entity("MeAnotoApi.Models.Users.User", b =>
+            modelBuilder.Entity("MeAnotoApi.Models.Users.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("varchar(255)");
@@ -110,6 +110,15 @@ namespace MeAnotoApi.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("InstitutionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("tinyint(1)");
@@ -134,6 +143,9 @@ namespace MeAnotoApi.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<string>("Run")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("longtext");
 
@@ -146,6 +158,8 @@ namespace MeAnotoApi.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("InstitutionId");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -155,7 +169,7 @@ namespace MeAnotoApi.Migrations
 
                     b.ToTable("AspNetUsers");
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("User");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("ApplicationUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -286,77 +300,25 @@ namespace MeAnotoApi.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("MeAnotoApi.Models.Users.Default.AttendeeUser", b =>
+            modelBuilder.Entity("MeAnotoApi.Models.Users.AttendeeUser", b =>
                 {
-                    b.HasBaseType("MeAnotoApi.Models.Users.User");
-
-                    b.Property<string>("FirstName")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("InstitutionId")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("int");
-
-                    b.Property<string>("LastName")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Run")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("longtext");
-
-                    b.HasIndex("InstitutionId");
+                    b.HasBaseType("MeAnotoApi.Models.Users.ApplicationUser");
 
                     b.HasDiscriminator().HasValue("AttendeeUser");
                 });
 
-            modelBuilder.Entity("MeAnotoApi.Models.Users.Default.ProfessorUser", b =>
+            modelBuilder.Entity("MeAnotoApi.Models.Users.ProfessorUser", b =>
                 {
-                    b.HasBaseType("MeAnotoApi.Models.Users.User");
-
-                    b.Property<string>("FirstName")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("InstitutionId")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("int");
-
-                    b.Property<string>("LastName")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Run")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("longtext");
-
-                    b.HasIndex("InstitutionId");
+                    b.HasBaseType("MeAnotoApi.Models.Users.ApplicationUser");
 
                     b.HasDiscriminator().HasValue("ProfessorUser");
-                });
-
-            modelBuilder.Entity("MeAnotoApi.Models.Users.Root.AdministratorUser", b =>
-                {
-                    b.HasBaseType("MeAnotoApi.Models.Users.User");
-
-                    b.HasDiscriminator().HasValue("AdministratorUser");
-                });
-
-            modelBuilder.Entity("MeAnotoApi.Models.Users.Root.ManagerUser", b =>
-                {
-                    b.HasBaseType("MeAnotoApi.Models.Users.User");
-
-                    b.HasDiscriminator().HasValue("ManagerUser");
                 });
 
             modelBuilder.Entity("MeAnotoApi.Models.Entities.CampusSingular", b =>
                 {
                     b.HasOne("MeAnotoApi.Models.Entities.Institution", "Institution")
                         .WithMany("CampusSingulars")
-                        .HasForeignKey("InstitutionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("InstitutionId");
 
                     b.Navigation("Institution");
                 });
@@ -365,9 +327,7 @@ namespace MeAnotoApi.Migrations
                 {
                     b.HasOne("MeAnotoApi.Models.Entities.CampusSingular", "CampusSingular")
                         .WithMany("Careers")
-                        .HasForeignKey("CampusSingularId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CampusSingularId");
 
                     b.Navigation("CampusSingular");
                 });
@@ -376,11 +336,18 @@ namespace MeAnotoApi.Migrations
                 {
                     b.HasOne("MeAnotoApi.Models.Entities.Career", "Career")
                         .WithMany("Courses")
-                        .HasForeignKey("CareerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CareerId");
 
                     b.Navigation("Career");
+                });
+
+            modelBuilder.Entity("MeAnotoApi.Models.Users.ApplicationUser", b =>
+                {
+                    b.HasOne("MeAnotoApi.Models.Entities.Institution", "Institution")
+                        .WithMany()
+                        .HasForeignKey("InstitutionId");
+
+                    b.Navigation("Institution");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -394,7 +361,7 @@ namespace MeAnotoApi.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("MeAnotoApi.Models.Users.User", null)
+                    b.HasOne("MeAnotoApi.Models.Users.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -403,7 +370,7 @@ namespace MeAnotoApi.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("MeAnotoApi.Models.Users.User", null)
+                    b.HasOne("MeAnotoApi.Models.Users.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -418,7 +385,7 @@ namespace MeAnotoApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MeAnotoApi.Models.Users.User", null)
+                    b.HasOne("MeAnotoApi.Models.Users.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -427,33 +394,11 @@ namespace MeAnotoApi.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("MeAnotoApi.Models.Users.User", null)
+                    b.HasOne("MeAnotoApi.Models.Users.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("MeAnotoApi.Models.Users.Default.AttendeeUser", b =>
-                {
-                    b.HasOne("MeAnotoApi.Models.Entities.Institution", "Institution")
-                        .WithMany()
-                        .HasForeignKey("InstitutionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Institution");
-                });
-
-            modelBuilder.Entity("MeAnotoApi.Models.Users.Default.ProfessorUser", b =>
-                {
-                    b.HasOne("MeAnotoApi.Models.Entities.Institution", "Institution")
-                        .WithMany()
-                        .HasForeignKey("InstitutionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Institution");
                 });
 
             modelBuilder.Entity("MeAnotoApi.Models.Entities.CampusSingular", b =>

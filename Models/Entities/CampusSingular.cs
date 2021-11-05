@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 
 namespace MeAnotoApi.Models.Entities {
 	public class CampusSingular : Entity {
-		public virtual int InstitutionId { get; set; }
 		[JsonIgnore]
 		public virtual Institution Institution { get; set; }
 		[JsonIgnore]

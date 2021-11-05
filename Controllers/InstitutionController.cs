@@ -5,13 +5,11 @@ using MeAnotoApi.Authentication;
 using MeAnotoApi.Contexts;
 using MeAnotoApi.Models.Entities;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MeAnotoApi.Controllers {
-	[Authorize]
 	[ApiController]
 	[EnableCors("FrontendCors")]
 	[Route("Api/Institution")]

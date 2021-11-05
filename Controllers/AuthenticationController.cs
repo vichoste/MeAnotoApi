@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using MeAnotoApi.Authentication;
-using MeAnotoApi.Models.Users.Default;
+using MeAnotoApi.Models.Users;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,11 +16,11 @@ using Microsoft.IdentityModel.Tokens;
 namespace MeAnotoApi.Controllers {
 	[Route("Api/Authentication")]
 	[ApiController]
-	public class DefaultAuthenticationController : ControllerBase {
-		private readonly UserManager<DefaultUser> _UserManager;
+	public class AuthenticationController : ControllerBase {
+		private readonly UserManager<ApplicationUser> _UserManager;
 		private readonly RoleManager<IdentityRole> _RoleManager;
 		private readonly IConfiguration _Configuration;
-		public DefaultAuthenticationController(UserManager<DefaultUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration) {
+		public AuthenticationController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration) {
 			this._UserManager = userManager;
 			this._RoleManager = roleManager;
 			this._Configuration = configuration;
@@ -28,7 +28,7 @@ namespace MeAnotoApi.Controllers {
 		[HttpPost]
 		[Route("Login")]
 		public async Task<IActionResult> Login([FromBody] LoginModel model) {
-			var user = await this._UserManager.FindByNameAsync(model.Email);
+			var user = await this._UserManager.FindByNameAsync(model.UserName);
 			if (user != null && await this._UserManager.CheckPasswordAsync(user, model.Password)) {
 				var userRoles = await this._UserManager.GetRolesAsync(user);
 				var authClaims = new List<Claim> {
@@ -55,18 +55,18 @@ namespace MeAnotoApi.Controllers {
 		}
 		[HttpPost]
 		[Route("Register")]
-		public async Task<IActionResult> Register([FromBody] DefaultRegisterModel model) {
-			var userExists = await this._UserManager.FindByNameAsync(model.Email);
+		public async Task<IActionResult> Register([FromBody] RegisterModel model) {
+			var userExists = await this._UserManager.FindByNameAsync(model.UserName);
 			if (userExists != null) {
 				return this.Unauthorized();
 			}
-			DefaultUser user = model.Role switch {
+			ApplicationUser user = model.Role switch {
 				"Attendee" => new AttendeeUser() {
-					Email = model.Email,
+					UserName = model.UserName,
 					SecurityStamp = Guid.NewGuid().ToString(),
 				},
 				"Professor" => new ProfessorUser() {
-					Email = model.Email,
+					UserName = model.UserName,
 					SecurityStamp = Guid.NewGuid().ToString(),
 				},
 				_ => null,
@@ -78,6 +78,32 @@ namespace MeAnotoApi.Controllers {
 					: this.Ok(new Response { Status = "Ok", Message = "Created successfully" });
 			}
 			return this.Unauthorized();
+		}
+		[HttpPost]
+		[Route("Register/Root")]
+		public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model) {
+			var userExists = await this._UserManager.FindByNameAsync(model.UserName);
+			if (userExists != null) {
+				return this.Unauthorized();
+			}
+			var user = new ApplicationUser() {
+				UserName = model.UserName,
+				SecurityStamp = Guid.NewGuid().ToString(),
+			};
+			var result = await this._UserManager.CreateAsync(user, model.Password);
+			if (!result.Succeeded) {
+				return this.BadRequest(this.BadRequest(new Response { Status = "Error", Message = "Creation failed" }));
+			}
+			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Root)) {
+				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Root));
+			}
+			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Default)) {
+				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Default));
+			}
+			if (await this._RoleManager.RoleExistsAsync(UserRoles.Root)) {
+				_ = await this._UserManager.AddToRoleAsync(user, UserRoles.Root);
+			}
+			return this.Ok(new Response { Status = "Ok", Message = "Created successfully" });
 		}
 	}
 }

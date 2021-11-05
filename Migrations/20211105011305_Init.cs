@@ -67,8 +67,6 @@ namespace MeAnotoApi.Migrations {
 				columns: table => new {
 					Id = table.Column<string>(type: "varchar(255)", nullable: false)
 						.Annotation("MySql:CharSet", "utf8mb4"),
-					Discriminator = table.Column<string>(type: "longtext", nullable: false)
-						.Annotation("MySql:CharSet", "utf8mb4"),
 					Run = table.Column<string>(type: "longtext", nullable: true)
 						.Annotation("MySql:CharSet", "utf8mb4"),
 					FirstName = table.Column<string>(type: "longtext", nullable: true)
@@ -76,6 +74,8 @@ namespace MeAnotoApi.Migrations {
 					LastName = table.Column<string>(type: "longtext", nullable: true)
 						.Annotation("MySql:CharSet", "utf8mb4"),
 					InstitutionId = table.Column<int>(type: "int", nullable: true),
+					Discriminator = table.Column<string>(type: "longtext", nullable: false)
+						.Annotation("MySql:CharSet", "utf8mb4"),
 					UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true)
 						.Annotation("MySql:CharSet", "utf8mb4"),
 					NormalizedUserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true)
@@ -106,7 +106,7 @@ namespace MeAnotoApi.Migrations {
 						column: x => x.InstitutionId,
 						principalTable: "Institutions",
 						principalColumn: "Id",
-						onDelete: ReferentialAction.Cascade);
+						onDelete: ReferentialAction.Restrict);
 				})
 				.Annotation("MySql:CharSet", "utf8mb4");
 
@@ -115,7 +115,7 @@ namespace MeAnotoApi.Migrations {
 				columns: table => new {
 					Id = table.Column<int>(type: "int", nullable: false)
 						.Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-					InstitutionId = table.Column<int>(type: "int", nullable: false),
+					InstitutionId = table.Column<int>(type: "int", nullable: true),
 					Name = table.Column<string>(type: "longtext", nullable: true)
 						.Annotation("MySql:CharSet", "utf8mb4")
 				},
@@ -126,7 +126,7 @@ namespace MeAnotoApi.Migrations {
 						column: x => x.InstitutionId,
 						principalTable: "Institutions",
 						principalColumn: "Id",
-						onDelete: ReferentialAction.Cascade);
+						onDelete: ReferentialAction.Restrict);
 				})
 				.Annotation("MySql:CharSet", "utf8mb4");
 
@@ -229,7 +229,7 @@ namespace MeAnotoApi.Migrations {
 				columns: table => new {
 					Id = table.Column<int>(type: "int", nullable: false)
 						.Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-					CampusSingularId = table.Column<int>(type: "int", nullable: false),
+					CampusSingularId = table.Column<int>(type: "int", nullable: true),
 					Name = table.Column<string>(type: "longtext", nullable: true)
 						.Annotation("MySql:CharSet", "utf8mb4")
 				},
@@ -240,7 +240,7 @@ namespace MeAnotoApi.Migrations {
 						column: x => x.CampusSingularId,
 						principalTable: "CampusSingulars",
 						principalColumn: "Id",
-						onDelete: ReferentialAction.Cascade);
+						onDelete: ReferentialAction.Restrict);
 				})
 				.Annotation("MySql:CharSet", "utf8mb4");
 
@@ -249,7 +249,7 @@ namespace MeAnotoApi.Migrations {
 				columns: table => new {
 					Id = table.Column<int>(type: "int", nullable: false)
 						.Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-					CareerId = table.Column<int>(type: "int", nullable: false),
+					CareerId = table.Column<int>(type: "int", nullable: true),
 					Name = table.Column<string>(type: "longtext", nullable: true)
 						.Annotation("MySql:CharSet", "utf8mb4")
 				},
@@ -260,7 +260,7 @@ namespace MeAnotoApi.Migrations {
 						column: x => x.CareerId,
 						principalTable: "Careers",
 						principalColumn: "Id",
-						onDelete: ReferentialAction.Cascade);
+						onDelete: ReferentialAction.Restrict);
 				})
 				.Annotation("MySql:CharSet", "utf8mb4");
 

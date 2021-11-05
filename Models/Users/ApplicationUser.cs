@@ -2,12 +2,13 @@
 
 using MeAnotoApi.Models.Entities;
 
-namespace MeAnotoApi.Models.Users.Default {
-	public abstract class DefaultUser : User {
+using Microsoft.AspNetCore.Identity;
+
+namespace MeAnotoApi.Models.Users {
+	public class ApplicationUser : IdentityUser {
 		public string Run { get; set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
-		public virtual int InstitutionId { get; set; }
 		[JsonIgnore]
 		public virtual Institution Institution { get; set; }
 	}

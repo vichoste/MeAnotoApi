@@ -24,7 +24,7 @@ namespace MeAnotoApi {
 			_ = services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "MeAnotoApi", Version = "v1" }));
 			var connection = this.Configuration.GetConnectionString("Database");
 			_ = services.AddDbContext<MeAnotoContext>(options => options.UseMySql(connection, ServerVersion.AutoDetect(connection)));
-			_ = services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<MeAnotoContext>().AddDefaultTokenProviders();
+			_ = services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<MeAnotoContext>().AddDefaultTokenProviders();
 			_ = services.AddAuthentication(options => {
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
