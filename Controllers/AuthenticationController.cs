@@ -63,6 +63,7 @@ namespace MeAnotoApi.Controllers {
 			}
 			var user = new ApplicationUser() {
 				UserName = model.UserName,
+				Email = model.UserName,
 				SecurityStamp = Guid.NewGuid().ToString(),
 			};
 			var result = await this._UserManager.CreateAsync(user, model.Password);
@@ -87,6 +88,7 @@ namespace MeAnotoApi.Controllers {
 			}
 			var user = new ApplicationUser() {
 				UserName = model.UserName,
+				Email = model.UserName,
 				SecurityStamp = Guid.NewGuid().ToString(),
 			};
 			var result = await this._UserManager.CreateAsync(user, model.Password);
@@ -111,6 +113,7 @@ namespace MeAnotoApi.Controllers {
 			}
 			var user = new ApplicationUser() {
 				UserName = model.UserName,
+				Email = model.UserName,
 				SecurityStamp = Guid.NewGuid().ToString(),
 			};
 			var result = await this._UserManager.CreateAsync(user, model.Password);
@@ -135,6 +138,7 @@ namespace MeAnotoApi.Controllers {
 			}
 			var user = new ApplicationUser() {
 				UserName = model.UserName,
+				Email = model.UserName,
 				SecurityStamp = Guid.NewGuid().ToString(),
 			};
 			var result = await this._UserManager.CreateAsync(user, model.Password);
