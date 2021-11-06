@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MeAnotoApi.Controllers {
-	[Authorize]
 	[ApiController]
 	[EnableCors("FrontendCors")]
 	[Route("Api/Career")]
@@ -25,6 +24,7 @@ namespace MeAnotoApi.Controllers {
 			var entity = await this._Context.Careers.FindAsync(id);
 			return entity is not null ? this.Ok(entity) : this.BadRequest();
 		}
+		[Authorize(Roles = UserRoles.Administrator)]
 		[HttpPost]
 		public async Task<ActionResult<Career>> Post(Career entity) {
 			_ = this._Context.Careers.Add(entity);

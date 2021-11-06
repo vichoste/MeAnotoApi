@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using MeAnotoApi.Authentication;
 using MeAnotoApi.Models.Users;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -54,34 +55,8 @@ namespace MeAnotoApi.Controllers {
 			return this.Unauthorized();
 		}
 		[HttpPost]
-		[Route("Register")]
-		public async Task<IActionResult> Register([FromBody] RegisterModel model) {
-			var userExists = await this._UserManager.FindByNameAsync(model.UserName);
-			if (userExists != null) {
-				return this.Unauthorized();
-			}
-			ApplicationUser user = model.Role switch {
-				"Attendee" => new AttendeeUser() {
-					UserName = model.UserName,
-					SecurityStamp = Guid.NewGuid().ToString(),
-				},
-				"Professor" => new ProfessorUser() {
-					UserName = model.UserName,
-					SecurityStamp = Guid.NewGuid().ToString(),
-				},
-				_ => null,
-			};
-			if (user is not null) {
-				var result = await this._UserManager.CreateAsync(user, model.Password);
-				return !result.Succeeded
-					? this.BadRequest(this.BadRequest(new Response { Status = "Error", Message = "Creation failed" }))
-					: this.Ok(new Response { Status = "Ok", Message = "Created successfully" });
-			}
-			return this.Unauthorized();
-		}
-		[HttpPost]
-		[Route("Register/Root")]
-		public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model) {
+		[Route("Register/Administrator")]
+		public async Task<IActionResult> RegisterAdministrator([FromBody] RegisterModel model) {
 			var userExists = await this._UserManager.FindByNameAsync(model.UserName);
 			if (userExists != null) {
 				return this.Unauthorized();
@@ -94,14 +69,83 @@ namespace MeAnotoApi.Controllers {
 			if (!result.Succeeded) {
 				return this.BadRequest(this.BadRequest(new Response { Status = "Error", Message = "Creation failed" }));
 			}
-			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Root)) {
-				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Root));
+			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Administrator)) {
+				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Administrator));
 			}
-			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Default)) {
-				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Default));
+			if (await this._RoleManager.RoleExistsAsync(UserRoles.Administrator)) {
+				_ = await this._UserManager.AddToRoleAsync(user, UserRoles.Administrator);
 			}
-			if (await this._RoleManager.RoleExistsAsync(UserRoles.Root)) {
-				_ = await this._UserManager.AddToRoleAsync(user, UserRoles.Root);
+			return this.Ok(new Response { Status = "Ok", Message = "Created successfully" });
+		}
+		[Authorize(Roles = UserRoles.Administrator)]
+		[HttpPost]
+		[Route("Register/Manager")]
+		public async Task<IActionResult> RegisterManager([FromBody] RegisterModel model) {
+			var userExists = await this._UserManager.FindByNameAsync(model.UserName);
+			if (userExists != null) {
+				return this.Unauthorized();
+			}
+			var user = new ApplicationUser() {
+				UserName = model.UserName,
+				SecurityStamp = Guid.NewGuid().ToString(),
+			};
+			var result = await this._UserManager.CreateAsync(user, model.Password);
+			if (!result.Succeeded) {
+				return this.BadRequest(this.BadRequest(new Response { Status = "Error", Message = "Creation failed" }));
+			}
+			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Manager)) {
+				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Manager));
+			}
+			if (await this._RoleManager.RoleExistsAsync(UserRoles.Manager)) {
+				_ = await this._UserManager.AddToRoleAsync(user, UserRoles.Manager);
+			}
+			return this.Ok(new Response { Status = "Ok", Message = "Created successfully" });
+		}
+		[Authorize(Roles = UserRoles.Administrator)]
+		[HttpPost]
+		[Route("Register/Professor")]
+		public async Task<IActionResult> RegisterProfessor([FromBody] RegisterModel model) {
+			var userExists = await this._UserManager.FindByNameAsync(model.UserName);
+			if (userExists != null) {
+				return this.Unauthorized();
+			}
+			var user = new ApplicationUser() {
+				UserName = model.UserName,
+				SecurityStamp = Guid.NewGuid().ToString(),
+			};
+			var result = await this._UserManager.CreateAsync(user, model.Password);
+			if (!result.Succeeded) {
+				return this.BadRequest(this.BadRequest(new Response { Status = "Error", Message = "Creation failed" }));
+			}
+			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Professor)) {
+				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
+			}
+			if (await this._RoleManager.RoleExistsAsync(UserRoles.Professor)) {
+				_ = await this._UserManager.AddToRoleAsync(user, UserRoles.Professor);
+			}
+			return this.Ok(new Response { Status = "Ok", Message = "Created successfully" });
+		}
+		[Authorize(Roles = UserRoles.Administrator)]
+		[HttpPost]
+		[Route("Register/Attendee")]
+		public async Task<IActionResult> RegisterAttendee([FromBody] RegisterModel model) {
+			var userExists = await this._UserManager.FindByNameAsync(model.UserName);
+			if (userExists != null) {
+				return this.Unauthorized();
+			}
+			var user = new ApplicationUser() {
+				UserName = model.UserName,
+				SecurityStamp = Guid.NewGuid().ToString(),
+			};
+			var result = await this._UserManager.CreateAsync(user, model.Password);
+			if (!result.Succeeded) {
+				return this.BadRequest(this.BadRequest(new Response { Status = "Error", Message = "Creation failed" }));
+			}
+			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Attendee)) {
+				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Attendee));
+			}
+			if (await this._RoleManager.RoleExistsAsync(UserRoles.Attendee)) {
+				_ = await this._UserManager.AddToRoleAsync(user, UserRoles.Attendee);
 			}
 			return this.Ok(new Response { Status = "Ok", Message = "Created successfully" });
 		}

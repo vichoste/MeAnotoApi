@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 
 using MeAnotoApi.Contexts;
@@ -21,7 +22,27 @@ namespace MeAnotoApi {
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services) {
 			_ = services.AddControllers();
-			_ = services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "MeAnotoApi", Version = "v1" }));
+			_ = services.AddSwaggerGen(c => {
+				c.SwaggerDoc("v1", new OpenApiInfo { Title = "MeAnotoApi", Version = "v1" });
+				c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+					Description = @"Format: Bearer [yourtokenhere]",
+					Name = "Authorization",
+					In = ParameterLocation.Header,
+					Type = SecuritySchemeType.ApiKey,
+					Scheme = "Bearer"
+				});
+				c.AddSecurityRequirement(new OpenApiSecurityRequirement() { {
+					new OpenApiSecurityScheme {
+						Reference = new OpenApiReference {
+							Type = ReferenceType.SecurityScheme,
+							Id = "Bearer"
+						},
+						Scheme = "oauth2",
+						Name = "Bearer",
+						In = ParameterLocation.Header
+					}, new List<string>()
+				}});
+			});
 			var connection = this.Configuration.GetConnectionString("Database");
 			_ = services.AddDbContext<MeAnotoContext>(options => options.UseMySql(connection, ServerVersion.AutoDetect(connection)));
 			_ = services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<MeAnotoContext>().AddDefaultTokenProviders();
