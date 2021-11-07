@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -45,7 +46,16 @@ namespace MeAnotoApi {
 			});
 			var connection = this.Configuration.GetConnectionString("Database");
 			_ = services.AddDbContext<MeAnotoContext>(options => options.UseMySql(connection, ServerVersion.AutoDetect(connection)));
-			_ = services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<MeAnotoContext>().AddDefaultTokenProviders();
+			_ = services.AddIdentity<ApplicationUser, IdentityRole>(options => {
+				options.SignIn.RequireConfirmedAccount = false;
+				options.SignIn.RequireConfirmedEmail = false;
+				options.SignIn.RequireConfirmedPhoneNumber = false;
+				options.Lockout.DefaultLockoutTimeSpan = TimeSpan.Zero;
+				options.Password.RequireDigit = false;
+				options.Password.RequiredLength = 0;
+				options.Password.RequiredUniqueChars = 0;
+				options.Password.RequireNonAlphanumeric = false;
+			}).AddEntityFrameworkStores<MeAnotoContext>().AddDefaultTokenProviders();
 			_ = services.AddAuthentication(options => {
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
