@@ -55,6 +55,7 @@ namespace MeAnotoApi {
 				options.Password.RequiredLength = 0;
 				options.Password.RequiredUniqueChars = 0;
 				options.Password.RequireNonAlphanumeric = false;
+				options.Password.RequireUppercase = false;
 			}).AddEntityFrameworkStores<MeAnotoContext>().AddDefaultTokenProviders();
 			_ = services.AddAuthentication(options => {
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

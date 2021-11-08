@@ -3,6 +3,7 @@
 		public const string All = "listar";
 		public const string Api = "api";
 		public const string Authentication = "autenticación";
-		public const string Login = "solicitar";
+		public const string Login = "login";
+		public const string Update = "actualizar";
 	}
 }

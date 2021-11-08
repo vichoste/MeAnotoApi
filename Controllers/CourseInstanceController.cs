@@ -13,21 +13,21 @@ using Microsoft.EntityFrameworkCore;
 namespace MeAnotoApi.Controllers {
 	[ApiController]
 	[EnableCors("FrontendCors")]
-	[Route(Routes.Api + "/" + Entities.Institution)]
-	public class InstitutionController : ControllerBase {
+	[Route(Routes.Api + "/" + Entities.CourseInstance)]
+	public class CourseInstanceController : ControllerBase {
 		private readonly MeAnotoContext _Context;
-		public InstitutionController(MeAnotoContext context) => this._Context = context;
+		public CourseInstanceController(MeAnotoContext context) => this._Context = context;
 		[HttpGet(Routes.All)]
-		public async Task<ActionResult<IEnumerable<Institution>>> Get() => await this._Context.Institutions.ToListAsync();
+		public async Task<ActionResult<IEnumerable<CourseInstance>>> Get() => await this._Context.CourseInstances.ToListAsync();
 		[HttpGet("{id}")]
-		public async Task<ActionResult<Institution>> Get(int id) {
-			var entity = await this._Context.Institutions.FindAsync(id);
+		public async Task<ActionResult<CourseInstance>> Get(int id) {
+			var entity = await this._Context.CourseInstances.FindAsync(id);
 			return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 		}
 		[Authorize(Roles = UserRoles.Administrator)]
 		[HttpPost]
-		public async Task<ActionResult<Institution>> Post(Institution entity) {
-			_ = this._Context.Institutions.Add(entity);
+		public async Task<ActionResult<CourseInstance>> Post(CourseInstance entity) {
+			_ = this._Context.CourseInstances.Add(entity);
 			_ = await this._Context.SaveChangesAsync();
 			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 		}

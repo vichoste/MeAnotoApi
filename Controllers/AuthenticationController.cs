@@ -53,14 +53,14 @@ namespace MeAnotoApi.Controllers {
 					Expiration = token.ValidTo
 				});
 			}
-			return this.Unauthorized();
+			return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
 		}
 		[HttpPost]
 		[Route(Routes.Login + "/" + UserRoles.Administrator)]
 		public async Task<IActionResult> RegisterAdministrator([FromBody] RegisterModel model) {
 			var userExists = await this._UserManager.FindByNameAsync(model.Email);
 			if (userExists != null) {
-				return this.Unauthorized();
+				return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
 			}
 			var user = new ApplicationUser() {
 				UserName = model.Email,
@@ -69,7 +69,7 @@ namespace MeAnotoApi.Controllers {
 			};
 			var result = await this._UserManager.CreateAsync(user, model.Password);
 			if (!result.Succeeded) {
-				return this.BadRequest(this.BadRequest(new Response { Status = Statuses.Error, Message = Messages.CreatedError }));
+				return this.BadRequest(this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError }));
 			}
 			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Administrator)) {
 				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Administrator));
@@ -85,7 +85,7 @@ namespace MeAnotoApi.Controllers {
 		public async Task<IActionResult> RegisterManager([FromBody] RegisterModel model) {
 			var userExists = await this._UserManager.FindByNameAsync(model.Email);
 			if (userExists != null) {
-				return this.Unauthorized();
+				return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
 			}
 			var user = new ApplicationUser() {
 				UserName = model.Email,
@@ -94,7 +94,7 @@ namespace MeAnotoApi.Controllers {
 			};
 			var result = await this._UserManager.CreateAsync(user, model.Password);
 			if (!result.Succeeded) {
-				return this.BadRequest(this.BadRequest(new Response { Status = Statuses.Error, Message = Messages.CreatedError }));
+				return this.BadRequest(this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError }));
 			}
 			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Manager)) {
 				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Manager));
@@ -110,7 +110,7 @@ namespace MeAnotoApi.Controllers {
 		public async Task<IActionResult> RegisterProfessor([FromBody] RegisterModel model) {
 			var userExists = await this._UserManager.FindByNameAsync(model.Email);
 			if (userExists != null) {
-				return this.Unauthorized();
+				return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
 			}
 			var user = new ApplicationUser() {
 				UserName = model.Email,
@@ -119,7 +119,7 @@ namespace MeAnotoApi.Controllers {
 			};
 			var result = await this._UserManager.CreateAsync(user, model.Password);
 			if (!result.Succeeded) {
-				return this.BadRequest(this.BadRequest(new Response { Status = Statuses.Error, Message = Messages.CreatedError }));
+				return this.BadRequest(this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError }));
 			}
 			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Professor)) {
 				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
@@ -135,7 +135,7 @@ namespace MeAnotoApi.Controllers {
 		public async Task<IActionResult> RegisterAttendee([FromBody] RegisterModel model) {
 			var userExists = await this._UserManager.FindByNameAsync(model.Email);
 			if (userExists != null) {
-				return this.Unauthorized();
+				return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
 			}
 			var user = new ApplicationUser() {
 				UserName = model.Email,
@@ -144,7 +144,7 @@ namespace MeAnotoApi.Controllers {
 			};
 			var result = await this._UserManager.CreateAsync(user, model.Password);
 			if (!result.Succeeded) {
-				return this.BadRequest(this.BadRequest(new Response { Status = Statuses.Error, Message = Messages.CreatedError }));
+				return this.BadRequest(this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError }));
 			}
 			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Attendee)) {
 				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Attendee));

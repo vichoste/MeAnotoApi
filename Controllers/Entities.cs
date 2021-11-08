@@ -6,5 +6,7 @@
 		public const string CourseInstance = "instanciamódulo";
 		public const string Institution = "institución";
 		public const string Room = "sala";
+		public const string Event = "evento";
+		public const string EventInstance = "instanciaevento";
 	}
 }

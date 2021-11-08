@@ -22,7 +22,7 @@ namespace MeAnotoApi.Controllers {
 		[HttpGet("{id}")]
 		public async Task<ActionResult<Course>> Get(int id) {
 			var entity = await this._Context.Courses.FindAsync(id);
-			return entity is not null ? this.Ok(entity) : this.BadRequest();
+			return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 		}
 		[Authorize(Roles = UserRoles.Administrator)]
 		[HttpPost]
