@@ -1,10 +1,16 @@
-﻿namespace MeAnotoApi.Authentication {
+﻿using System.Text.Json.Serialization;
+
+namespace MeAnotoApi.Authentication {
 	public sealed class RegisterModel {
-		public string UserName { get; set; }
+		[JsonPropertyName(JsonPropertyNames.Email)]
+		public string Email { get; set; }
+		[JsonPropertyName(JsonPropertyNames.Password)]
 		public string Password { get; set; }
+		[JsonPropertyName(JsonPropertyNames.Run)]
 		public string Run { get; set; }
+		[JsonPropertyName(JsonPropertyNames.FirstName)]
 		public string FirstName { get; set; }
+		[JsonPropertyName(JsonPropertyNames.LastName)]
 		public string LastName { get; set; }
-		public string Role { get; set; }
 	}
 }

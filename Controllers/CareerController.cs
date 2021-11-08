@@ -13,11 +13,11 @@ using Microsoft.EntityFrameworkCore;
 namespace MeAnotoApi.Controllers {
 	[ApiController]
 	[EnableCors("FrontendCors")]
-	[Route("Api/Career")]
+	[Route(Routes.Api + "/" + Entities.Career)]
 	public class CareerController : ControllerBase {
 		private readonly MeAnotoContext _Context;
 		public CareerController(MeAnotoContext context) => this._Context = context;
-		[HttpGet("All")]
+		[HttpGet(Routes.All)]
 		public async Task<ActionResult<IEnumerable<Career>>> Get() => await this._Context.Careers.ToListAsync();
 		[HttpGet("{id}")]
 		public async Task<ActionResult<Career>> Get(int id) {
@@ -29,7 +29,7 @@ namespace MeAnotoApi.Controllers {
 		public async Task<ActionResult<Career>> Post(Career entity) {
 			_ = this._Context.Careers.Add(entity);
 			_ = await this._Context.SaveChangesAsync();
-			return this.Ok(new Response { Status = "Ok", Message = "Created successfully" });
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 		}
 	}
 }

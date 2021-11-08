@@ -1,0 +1,8 @@
+﻿namespace MeAnotoApi.Controllers {
+	public class Routes {
+		public const string All = "listar";
+		public const string Api = "api";
+		public const string Authentication = "autenticación";
+		public const string Login = "solicitar";
+	}
+}
