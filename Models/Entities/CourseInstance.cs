@@ -5,7 +5,7 @@ using MeAnotoApi.Authentication;
 using MeAnotoApi.Models.Users;
 
 namespace MeAnotoApi.Models.Entities {
-	public class CourseInstance {
+	public class CourseInstance : Entity {
 		[JsonIgnore]
 		public virtual Course Course { get; set; }
 		[JsonPropertyName(JsonPropertyNames.Year)]

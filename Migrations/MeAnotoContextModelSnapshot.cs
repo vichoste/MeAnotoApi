@@ -17,6 +17,51 @@ namespace MeAnotoApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64)
                 .HasAnnotation("ProductVersion", "5.0.11");
 
+            modelBuilder.Entity("AttendeeCourseInstance", b =>
+                {
+                    b.Property<string>("AttendeesId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int>("CourseInstancesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AttendeesId", "CourseInstancesId");
+
+                    b.HasIndex("CourseInstancesId");
+
+                    b.ToTable("AttendeeCourseInstance");
+                });
+
+            modelBuilder.Entity("AttendeeEventInstance", b =>
+                {
+                    b.Property<string>("AttendeesId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int>("EventInstancesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AttendeesId", "EventInstancesId");
+
+                    b.HasIndex("EventInstancesId");
+
+                    b.ToTable("AttendeeEventInstance");
+                });
+
+            modelBuilder.Entity("CourseInstanceProfessor", b =>
+                {
+                    b.Property<int>("CourseInstancesId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProfessorsId")
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("CourseInstancesId", "ProfessorsId");
+
+                    b.HasIndex("ProfessorsId");
+
+                    b.ToTable("CourseInstanceProfessor");
+                });
+
             modelBuilder.Entity("MeAnotoApi.Models.Entities.CampusSingular", b =>
                 {
                     b.Property<int>("Id")
@@ -74,6 +119,96 @@ namespace MeAnotoApi.Migrations
                     b.ToTable("Courses");
                 });
 
+            modelBuilder.Entity("MeAnotoApi.Models.Entities.CourseInstance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Section")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Semester")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Year")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("CourseInstances");
+                });
+
+            modelBuilder.Entity("MeAnotoApi.Models.Entities.Event", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("InstitutionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ProfessorId")
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId");
+
+                    b.HasIndex("ProfessorId");
+
+                    b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("MeAnotoApi.Models.Entities.EventInstance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Cancellation")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("CourseInstanceId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Creation")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseInstanceId");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("EventInstances");
+                });
+
             modelBuilder.Entity("MeAnotoApi.Models.Entities.Institution", b =>
                 {
                     b.Property<int>("Id")
@@ -86,6 +221,28 @@ namespace MeAnotoApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Institutions");
+                });
+
+            modelBuilder.Entity("MeAnotoApi.Models.Entities.Room", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CampusSingularId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampusSingularId");
+
+                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("MeAnotoApi.Models.Users.ApplicationUser", b =>
@@ -300,18 +457,63 @@ namespace MeAnotoApi.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("MeAnotoApi.Models.Users.AttendeeUser", b =>
+            modelBuilder.Entity("MeAnotoApi.Models.Users.Attendee", b =>
                 {
                     b.HasBaseType("MeAnotoApi.Models.Users.ApplicationUser");
 
-                    b.HasDiscriminator().HasValue("AttendeeUser");
+                    b.HasDiscriminator().HasValue("Attendee");
                 });
 
-            modelBuilder.Entity("MeAnotoApi.Models.Users.ProfessorUser", b =>
+            modelBuilder.Entity("MeAnotoApi.Models.Users.Professor", b =>
                 {
                     b.HasBaseType("MeAnotoApi.Models.Users.ApplicationUser");
 
-                    b.HasDiscriminator().HasValue("ProfessorUser");
+                    b.HasDiscriminator().HasValue("Professor");
+                });
+
+            modelBuilder.Entity("AttendeeCourseInstance", b =>
+                {
+                    b.HasOne("MeAnotoApi.Models.Users.Attendee", null)
+                        .WithMany()
+                        .HasForeignKey("AttendeesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MeAnotoApi.Models.Entities.CourseInstance", null)
+                        .WithMany()
+                        .HasForeignKey("CourseInstancesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AttendeeEventInstance", b =>
+                {
+                    b.HasOne("MeAnotoApi.Models.Users.Attendee", null)
+                        .WithMany()
+                        .HasForeignKey("AttendeesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MeAnotoApi.Models.Entities.EventInstance", null)
+                        .WithMany()
+                        .HasForeignKey("EventInstancesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CourseInstanceProfessor", b =>
+                {
+                    b.HasOne("MeAnotoApi.Models.Entities.CourseInstance", null)
+                        .WithMany()
+                        .HasForeignKey("CourseInstancesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MeAnotoApi.Models.Users.Professor", null)
+                        .WithMany()
+                        .HasForeignKey("ProfessorsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MeAnotoApi.Models.Entities.CampusSingular", b =>
@@ -339,6 +541,60 @@ namespace MeAnotoApi.Migrations
                         .HasForeignKey("CareerId");
 
                     b.Navigation("Career");
+                });
+
+            modelBuilder.Entity("MeAnotoApi.Models.Entities.CourseInstance", b =>
+                {
+                    b.HasOne("MeAnotoApi.Models.Entities.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId");
+
+                    b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("MeAnotoApi.Models.Entities.Event", b =>
+                {
+                    b.HasOne("MeAnotoApi.Models.Entities.Institution", "Institution")
+                        .WithMany("Events")
+                        .HasForeignKey("InstitutionId");
+
+                    b.HasOne("MeAnotoApi.Models.Users.Professor", "Professor")
+                        .WithMany("Events")
+                        .HasForeignKey("ProfessorId");
+
+                    b.Navigation("Institution");
+
+                    b.Navigation("Professor");
+                });
+
+            modelBuilder.Entity("MeAnotoApi.Models.Entities.EventInstance", b =>
+                {
+                    b.HasOne("MeAnotoApi.Models.Entities.CourseInstance", "CourseInstance")
+                        .WithMany("EventInstances")
+                        .HasForeignKey("CourseInstanceId");
+
+                    b.HasOne("MeAnotoApi.Models.Entities.Event", "Event")
+                        .WithMany("EventInstances")
+                        .HasForeignKey("EventId");
+
+                    b.HasOne("MeAnotoApi.Models.Entities.Room", "Room")
+                        .WithMany("EventInstances")
+                        .HasForeignKey("RoomId");
+
+                    b.Navigation("CourseInstance");
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("MeAnotoApi.Models.Entities.Room", b =>
+                {
+                    b.HasOne("MeAnotoApi.Models.Entities.CampusSingular", "CampusSingular")
+                        .WithMany("Rooms")
+                        .HasForeignKey("CampusSingularId");
+
+                    b.Navigation("CampusSingular");
                 });
 
             modelBuilder.Entity("MeAnotoApi.Models.Users.ApplicationUser", b =>
@@ -404,6 +660,8 @@ namespace MeAnotoApi.Migrations
             modelBuilder.Entity("MeAnotoApi.Models.Entities.CampusSingular", b =>
                 {
                     b.Navigation("Careers");
+
+                    b.Navigation("Rooms");
                 });
 
             modelBuilder.Entity("MeAnotoApi.Models.Entities.Career", b =>
@@ -411,9 +669,31 @@ namespace MeAnotoApi.Migrations
                     b.Navigation("Courses");
                 });
 
+            modelBuilder.Entity("MeAnotoApi.Models.Entities.CourseInstance", b =>
+                {
+                    b.Navigation("EventInstances");
+                });
+
+            modelBuilder.Entity("MeAnotoApi.Models.Entities.Event", b =>
+                {
+                    b.Navigation("EventInstances");
+                });
+
             modelBuilder.Entity("MeAnotoApi.Models.Entities.Institution", b =>
                 {
                     b.Navigation("CampusSingulars");
+
+                    b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("MeAnotoApi.Models.Entities.Room", b =>
+                {
+                    b.Navigation("EventInstances");
+                });
+
+            modelBuilder.Entity("MeAnotoApi.Models.Users.Professor", b =>
+                {
+                    b.Navigation("Events");
                 });
 #pragma warning restore 612, 618
         }
