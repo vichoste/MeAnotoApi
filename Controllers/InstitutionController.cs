@@ -19,9 +19,9 @@ namespace MeAnotoApi.Controllers {
 		public InstitutionController(MeAnotoContext context) => this._Context = context;
 		[HttpGet(Routes.All)]
 		public async Task<ActionResult<IEnumerable<Institution>>> Get() => await this._Context.Institutions.ToListAsync();
-		[HttpGet("{id}")]
-		public async Task<ActionResult<Institution>> Get(int id) {
-			var entity = await this._Context.Institutions.FindAsync(id);
+		[HttpGet("{" + Entities.Institution + "}")]
+		public async Task<ActionResult<Institution>> Get(int institutionId) {
+			var entity = await this._Context.Institutions.FindAsync(institutionId);
 			return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 		}
 		[Authorize(Roles = UserRoles.Administrator)]

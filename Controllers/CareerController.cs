@@ -25,8 +25,13 @@ namespace MeAnotoApi.Controllers {
 			return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 		}
 		[Authorize(Roles = UserRoles.Administrator)]
-		[HttpPost]
-		public async Task<ActionResult<Career>> Post(Career entity) {
+		[HttpPost("{" + Entities.CampusSingular + "}")]
+		public async Task<ActionResult<Career>> Post(Career entity, int campusSingulerId) {
+			var campusSingular = await this._Context.CampusSingulars.FindAsync(campusSingulerId);
+			if (campusSingular is null) {
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+			}
+			entity.CampusSingular = campusSingular;
 			_ = this._Context.Careers.Add(entity);
 			_ = await this._Context.SaveChangesAsync();
 			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });

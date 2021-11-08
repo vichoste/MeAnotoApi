@@ -19,24 +19,29 @@ namespace MeAnotoApi.Controllers {
 		public RoomController(MeAnotoContext context) => this._Context = context;
 		[HttpGet(Routes.All)]
 		public async Task<ActionResult<IEnumerable<Room>>> Get() => await this._Context.Rooms.ToListAsync();
-		[HttpGet("{id}")]
-		public async Task<ActionResult<Room>> Get(int id) {
-			var entity = await this._Context.Rooms.FindAsync(id);
+		[HttpGet("{" + Entities.Room + "}")]
+		public async Task<ActionResult<Room>> Get(int roomId) {
+			var entity = await this._Context.Rooms.FindAsync(roomId);
 			return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 		}
 		[Authorize(Roles = UserRoles.Administrator)]
-		[HttpPost]
-		public async Task<ActionResult<Room>> Post(Room entity) {
+		[HttpPost("{" + Entities.CampusSingular + "}")]
+		public async Task<ActionResult<Room>> Post(Room entity, int campus) {
+			var campusSingular = await this._Context.CampusSingulars.FindAsync(campus);
+			if (campusSingular is null) {
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+			}
+			entity.CampusSingular = campusSingular;
 			_ = this._Context.Rooms.Add(entity);
 			_ = await this._Context.SaveChangesAsync();
 			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 		}
 		[Authorize(Roles = UserRoles.Administrator + "," + UserRoles.Manager)]
-		[HttpPatch(Routes.Update + "/{id}/{capacidad}")]
-		public async Task<ActionResult<Room>> Update(int id, int capacidad) {
-			var entity = await this._Context.Rooms.FindAsync(id);
+		[HttpPatch(Routes.Update + "/{" + Entities.Room + "}/{" + JsonPropertyNames.Capacity + "}")]
+		public async Task<ActionResult<Room>> Update(int roomId, int capacity) {
+			var entity = await this._Context.Rooms.FindAsync(roomId);
 			if (entity is not null) {
-				entity.Capacity = capacidad;
+				entity.Capacity = capacity;
 				_ = await this._Context.SaveChangesAsync();
 				return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.UpdatedOk });
 			}

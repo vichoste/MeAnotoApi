@@ -69,7 +69,7 @@ namespace MeAnotoApi.Controllers {
 			};
 			var result = await this._UserManager.CreateAsync(user, model.Password);
 			if (!result.Succeeded) {
-				return this.BadRequest(this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError }));
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 			}
 			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Administrator)) {
 				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Administrator));
@@ -94,7 +94,7 @@ namespace MeAnotoApi.Controllers {
 			};
 			var result = await this._UserManager.CreateAsync(user, model.Password);
 			if (!result.Succeeded) {
-				return this.BadRequest(this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError }));
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 			}
 			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Manager)) {
 				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Manager));
@@ -119,7 +119,7 @@ namespace MeAnotoApi.Controllers {
 			};
 			var result = await this._UserManager.CreateAsync(user, model.Password);
 			if (!result.Succeeded) {
-				return this.BadRequest(this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError }));
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 			}
 			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Professor)) {
 				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
@@ -144,7 +144,7 @@ namespace MeAnotoApi.Controllers {
 			};
 			var result = await this._UserManager.CreateAsync(user, model.Password);
 			if (!result.Succeeded) {
-				return this.BadRequest(this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError }));
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 			}
 			if (!await this._RoleManager.RoleExistsAsync(UserRoles.Attendee)) {
 				_ = await this._RoleManager.CreateAsync(new IdentityRole(UserRoles.Attendee));
