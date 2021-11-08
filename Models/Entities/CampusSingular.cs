@@ -7,5 +7,7 @@ namespace MeAnotoApi.Models.Entities {
 		public virtual Institution Institution { get; set; }
 		[JsonIgnore]
 		public virtual ICollection<Career> Careers { get; set; }
+		[JsonIgnore]
+		public virtual ICollection<Room> Rooms { get; set; }
 	}
 }

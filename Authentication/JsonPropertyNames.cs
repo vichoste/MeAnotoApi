@@ -11,5 +11,11 @@
 		public const string LastName = "apellido";
 		public const string Capacity = "capacidad";
 		public const string Name = "nombre";
+		public const string Year = "año";
+		public const string Semester = "semestre";
+		public const string Section = "sección";
+		public const string DateTime = "fechahora";
+		public const string Creation = "creación";
+		public const string Cancellation = "cancelación";
 	}
 }

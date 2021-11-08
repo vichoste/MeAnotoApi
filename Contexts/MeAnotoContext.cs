@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MeAnotoApi.Contexts {
 	public class MeAnotoContext : IdentityDbContext<ApplicationUser> {
-		public DbSet<AttendeeUser> AttendeeUsers { get; set; }
-		public DbSet<ProfessorUser> ProfessorUsers { get; set; }
+		public DbSet<Attendee> AttendeeUsers { get; set; }
+		public DbSet<Professor> ProfessorUsers { get; set; }
 		public DbSet<Institution> Institutions { get; set; }
 		public DbSet<CampusSingular> CampusSingulars { get; set; }
 		public DbSet<Career> Careers { get; set; }
