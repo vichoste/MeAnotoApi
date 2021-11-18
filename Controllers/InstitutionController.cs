@@ -20,7 +20,7 @@ public class InstitutionController : ControllerBase {
 	public InstitutionController(MeAnotoContext context) => this._context = context;
 	[HttpGet(Routes.All)]
 	public async Task<ActionResult<IEnumerable<Institution>>> Get() => await this._context.Institutions.ToListAsync();
-	[HttpGet("{" + Entities.Institution + "}")]
+	[HttpGet("{id}")]
 	public async Task<ActionResult<Institution>> Get(int id) {
 		var entity = await this._context.Institutions.FindAsync(id);
 		return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });

@@ -20,15 +20,15 @@ public class RoomController : ControllerBase {
 	public RoomController(MeAnotoContext context) => this._context = context;
 	[HttpGet(Routes.All)]
 	public async Task<ActionResult<IEnumerable<Room>>> Get() => await this._context.Rooms.ToListAsync();
-	[HttpGet("{" + Entities.Room + "}")]
+	[HttpGet("{id}")]
 	public async Task<ActionResult<Room>> Get(int id) {
 		var entity = await this._context.Rooms.FindAsync(id);
 		return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	[Authorize(Roles = UserRoles.Administrator)]
-	[HttpPost("{" + Entities.CampusSingular + "}")]
-	public async Task<ActionResult<Room>> Post(Room entity, int campus) {
-		var campusSingular = await this._context.CampusSingulars.FindAsync(campus);
+	[HttpPost("{campusId}")]
+	public async Task<ActionResult<Room>> Post(Room entity, int campusId) {
+		var campusSingular = await this._context.CampusSingulars.FindAsync(campusId);
 		if (campusSingular is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
@@ -38,7 +38,7 @@ public class RoomController : ControllerBase {
 		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}
 	[Authorize(Roles = UserRoles.Administrator + "," + UserRoles.Manager)]
-	[HttpPatch(Routes.Update + "/{" + Entities.Room + "}/{" + JsonPropertyNames.Capacity + "}")]
+	[HttpPatch(Routes.Update + "/{roomId}/{" + JsonPropertyNames.Capacity + "}")]
 	public async Task<ActionResult<Room>> Update(int roomId, int capacity) {
 		var entity = await this._context.Rooms.FindAsync(roomId);
 		if (entity is not null) {

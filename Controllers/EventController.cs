@@ -20,13 +20,13 @@ public class EventController : ControllerBase {
 	public EventController(MeAnotoContext context) => this._context = context;
 	[HttpGet(Routes.All)]
 	public async Task<ActionResult<IEnumerable<Event>>> Get() => await this._context.Events.ToListAsync();
-	[HttpGet("{" + Entities.Event + "}")]
+	[HttpGet("{id}")]
 	public async Task<ActionResult<Event>> Get(int id) {
 		var entity = await this._context.Events.FindAsync(id);
 		return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	[Authorize(Roles = UserRoles.Administrator + "," + UserRoles.Professor)]
-	[HttpPost("{" + Entities.Institution + "}")]
+	[HttpPost("{institutionId}")]
 	public async Task<ActionResult<Event>> Post(Event entity, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {

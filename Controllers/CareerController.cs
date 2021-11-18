@@ -20,15 +20,15 @@ public class CareerController : ControllerBase {
 	public CareerController(MeAnotoContext context) => this._context = context;
 	[HttpGet(Routes.All)]
 	public async Task<ActionResult<IEnumerable<Career>>> Get() => await this._context.Careers.ToListAsync();
-	[HttpGet("{" + Entities.Career + "}")]
+	[HttpGet("{id}")]
 	public async Task<ActionResult<Career>> Get(int id) {
 		var entity = await this._context.Careers.FindAsync(id);
 		return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	[Authorize(Roles = UserRoles.Administrator)]
-	[HttpPost("{" + Entities.CampusSingular + "}")]
-	public async Task<ActionResult<Career>> Post(Career entity, int campusSingulerId) {
-		var campusSingular = await this._context.CampusSingulars.FindAsync(campusSingulerId);
+	[HttpPost("{campusSingularId}")]
+	public async Task<ActionResult<Career>> Post(Career entity, int campusSingularId) {
+		var campusSingular = await this._context.CampusSingulars.FindAsync(campusSingularId);
 		if (campusSingular is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}

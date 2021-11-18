@@ -20,13 +20,13 @@ public class EventInstanceController : ControllerBase {
 	public EventInstanceController(MeAnotoContext context) => this._context = context;
 	[HttpGet(Routes.All)]
 	public async Task<ActionResult<IEnumerable<EventInstance>>> Get() => await this._context.EventInstances.ToListAsync();
-	[HttpGet("{" + Entities.EventInstance + "}")]
+	[HttpGet("{id}")]
 	public async Task<ActionResult<EventInstance>> Get(int id) {
 		var entity = await this._context.EventInstances.FindAsync(id);
 		return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	[Authorize(Roles = UserRoles.Administrator + "," + UserRoles.Professor)]
-	[HttpPost("{" + Entities.Event + "}/{" + Entities.CourseInstance + "}/{" + Entities.Room + "}")]
+	[HttpPost("{eventId}/{courseInstanceId}/{roomId}")]
 	public async Task<ActionResult<EventInstance>> Post(EventInstance entity, int eventId, int courseInstanceId, int roomId) {
 		var @event = await this._context.Events.FindAsync(eventId);
 		var courseInstance = await this._context.CourseInstances.FindAsync(courseInstanceId);

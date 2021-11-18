@@ -20,13 +20,13 @@ public class CampusSingularController : ControllerBase {
 	public CampusSingularController(MeAnotoContext context) => this._context = context;
 	[HttpGet(Routes.All)]
 	public async Task<ActionResult<IEnumerable<CampusSingular>>> Get() => await this._context.CampusSingulars.ToListAsync();
-	[HttpGet("{" + Entities.CampusSingular + "}")]
+	[HttpGet("{id}")]
 	public async Task<ActionResult<CampusSingular>> Get(int id) {
 		var entity = await this._context.CampusSingulars.FindAsync(id);
 		return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	[Authorize(Roles = UserRoles.Administrator)]
-	[HttpPost("{" + Entities.Institution + "}")]
+	[HttpPost("{institutionId}")]
 	public async Task<ActionResult<CampusSingular>> Post(CampusSingular entity, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {
