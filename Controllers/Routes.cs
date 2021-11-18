@@ -6,4 +6,5 @@ public class Routes {
 	public const string Authentication = "autenticación";
 	public const string Login = "login";
 	public const string Update = "actualizar";
+	public const string Count = "contar";
 }
