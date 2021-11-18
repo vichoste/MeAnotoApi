@@ -22,25 +22,25 @@ public class MeAnotoContext : IdentityDbContext<ApplicationUser> {
 	}
 	protected override void OnModelCreating(ModelBuilder builder) {
 		base.OnModelCreating(builder);
-		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.Id).HasMaxLength(32));
-		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.NormalizedEmail).HasMaxLength(32));
-		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.UserName).HasMaxLength(32));
-		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.Email).HasMaxLength(32));
-		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.NormalizedUserName).HasMaxLength(32));
-		_ = builder.Entity<IdentityRole>(entity => entity.Property(m => m.Id).HasMaxLength(32));
-		_ = builder.Entity<IdentityRole>(entity => entity.Property(m => m.Name).HasMaxLength(32));
-		_ = builder.Entity<IdentityRole>(entity => entity.Property(m => m.NormalizedName).HasMaxLength(32));
-		_ = builder.Entity<IdentityUserLogin<string>>(entity => entity.Property(m => m.LoginProvider).HasMaxLength(32));
-		_ = builder.Entity<IdentityUserLogin<string>>(entity => entity.Property(m => m.ProviderKey).HasMaxLength(32));
-		_ = builder.Entity<IdentityUserLogin<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(32));
-		_ = builder.Entity<IdentityUserRole<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(32));
-		_ = builder.Entity<IdentityUserRole<string>>(entity => entity.Property(m => m.RoleId).HasMaxLength(32));
-		_ = builder.Entity<IdentityUserToken<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(32));
-		_ = builder.Entity<IdentityUserToken<string>>(entity => entity.Property(m => m.LoginProvider).HasMaxLength(32));
-		_ = builder.Entity<IdentityUserToken<string>>(entity => entity.Property(m => m.Name).HasMaxLength(32));
-		_ = builder.Entity<IdentityUserClaim<string>>(entity => entity.Property(m => m.Id).HasMaxLength(32));
-		_ = builder.Entity<IdentityUserClaim<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(32));
-		_ = builder.Entity<IdentityRoleClaim<string>>(entity => entity.Property(m => m.Id).HasMaxLength(32));
-		_ = builder.Entity<IdentityRoleClaim<string>>(entity => entity.Property(m => m.RoleId).HasMaxLength(32));
+		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.Id).HasMaxLength(255));
+		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.NormalizedEmail).HasMaxLength(255));
+		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.UserName).HasMaxLength(255));
+		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.Email).HasMaxLength(255));
+		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.NormalizedUserName).HasMaxLength(255));
+		_ = builder.Entity<IdentityRole>(entity => entity.Property(m => m.Id).HasMaxLength(255));
+		_ = builder.Entity<IdentityRole>(entity => entity.Property(m => m.Name).HasMaxLength(255));
+		_ = builder.Entity<IdentityRole>(entity => entity.Property(m => m.NormalizedName).HasMaxLength(255));
+		_ = builder.Entity<IdentityUserLogin<string>>(entity => entity.Property(m => m.LoginProvider).HasMaxLength(255));
+		_ = builder.Entity<IdentityUserLogin<string>>(entity => entity.Property(m => m.ProviderKey).HasMaxLength(255));
+		_ = builder.Entity<IdentityUserLogin<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(255));
+		_ = builder.Entity<IdentityUserRole<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(255));
+		_ = builder.Entity<IdentityUserRole<string>>(entity => entity.Property(m => m.RoleId).HasMaxLength(255));
+		_ = builder.Entity<IdentityUserToken<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(255));
+		_ = builder.Entity<IdentityUserToken<string>>(entity => entity.Property(m => m.LoginProvider).HasMaxLength(255));
+		_ = builder.Entity<IdentityUserToken<string>>(entity => entity.Property(m => m.Name).HasMaxLength(255));
+		_ = builder.Entity<IdentityUserClaim<string>>(entity => entity.Property(m => m.Id).HasMaxLength(255));
+		_ = builder.Entity<IdentityUserClaim<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(255));
+		_ = builder.Entity<IdentityRoleClaim<string>>(entity => entity.Property(m => m.Id).HasMaxLength(255));
+		_ = builder.Entity<IdentityRoleClaim<string>>(entity => entity.Property(m => m.RoleId).HasMaxLength(255));
 	}
 }
