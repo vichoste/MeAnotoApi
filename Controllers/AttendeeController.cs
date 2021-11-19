@@ -20,7 +20,4 @@ public class AttendeeController : ControllerBase {
 		var attendee = await this._context.Attendees.FindAsync(id);
 		return attendee is not null ? this.Ok(attendee.EventInstances) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
-	public async Task<ActionResult<EventInstance>> PostReservation(int id) {
-		var attendee = this._context.Attendees.FindAsync(id);
-	}
 }

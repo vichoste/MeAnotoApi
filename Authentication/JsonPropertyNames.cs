@@ -18,4 +18,5 @@ public class JsonPropertyNames {
 	public const string DateTime = "fechahora";
 	public const string Creation = "creación";
 	public const string Cancellation = "cancelación";
+	public const string Roles = "roles";
 }

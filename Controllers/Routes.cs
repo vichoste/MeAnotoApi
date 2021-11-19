@@ -7,4 +7,5 @@ public class Routes {
 	public const string Login = "login";
 	public const string Update = "actualizar";
 	public const string Count = "contar";
+	public const string Register = "registrar";
 }

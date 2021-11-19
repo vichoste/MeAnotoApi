@@ -51,13 +51,14 @@ public class AuthenticationController : ControllerBase {
 			return this.Ok(new Token {
 				Status = Statuses.Ok,
 				Info = new JwtSecurityTokenHandler().WriteToken(token),
-				Expiration = token.ValidTo
+				Expiration = token.ValidTo,
+				Roles = userRoles
 			});
 		}
-		return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
+		return this.StatusCode(403, new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
 	}
 	[HttpPost]
-	[Route(Routes.Login + "/" + UserRoles.Administrator)]
+	[Route(Routes.Register + "/" + UserRoles.Administrator)]
 	public async Task<IActionResult> RegisterAdministrator([FromBody] RegisterModel model) {
 		var userExists = await this._userManager.FindByNameAsync(model.Email);
 		if (userExists != null) {
@@ -82,7 +83,7 @@ public class AuthenticationController : ControllerBase {
 	}
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
-	[Route(Routes.Login + "/" + UserRoles.Manager)]
+	[Route(Routes.Register + "/" + UserRoles.Manager)]
 	public async Task<IActionResult> RegisterManager([FromBody] RegisterModel model) {
 		var userExists = await this._userManager.FindByNameAsync(model.Email);
 		if (userExists != null) {
@@ -107,7 +108,7 @@ public class AuthenticationController : ControllerBase {
 	}
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
-	[Route(Routes.Login + "/" + UserRoles.Professor)]
+	[Route(Routes.Register + "/" + UserRoles.Professor)]
 	public async Task<IActionResult> RegisterProfessor([FromBody] RegisterModel model) {
 		var userExists = await this._userManager.FindByNameAsync(model.Email);
 		if (userExists != null) {
@@ -132,7 +133,7 @@ public class AuthenticationController : ControllerBase {
 	}
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
-	[Route(Routes.Login + "/" + UserRoles.Attendee)]
+	[Route(Routes.Register + "/" + UserRoles.Attendee)]
 	public async Task<IActionResult> RegisterAttendee([FromBody] RegisterModel model) {
 		var userExists = await this._userManager.FindByNameAsync(model.Email);
 		if (userExists != null) {

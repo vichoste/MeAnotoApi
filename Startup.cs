@@ -57,6 +57,7 @@ public class Startup {
 			options.Password.RequiredUniqueChars = 0;
 			options.Password.RequireNonAlphanumeric = false;
 			options.Password.RequireUppercase = false;
+			options.Password.RequireLowercase = false;
 		}).AddEntityFrameworkStores<MeAnotoContext>().AddDefaultTokenProviders();
 		_ = services.AddAuthentication(options => {
 			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

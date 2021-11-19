@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace MeAnotoApi.Authentication;
@@ -10,4 +11,6 @@ public class Token {
 	public string Info { get; set; }
 	[JsonPropertyName(JsonPropertyNames.Expiration)]
 	public DateTime Expiration { get; set; }
+	[JsonPropertyName(JsonPropertyNames.Roles)]
+	public IList<string> Roles { get; set; }
 }
