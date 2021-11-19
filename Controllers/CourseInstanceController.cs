@@ -37,10 +37,10 @@ public class CourseInstanceController : ControllerBase {
 		_ = await this._context.SaveChangesAsync();
 		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}
-	//[Authorize(Roles = UserRoles.Administrator + "," + UserRoles.Professor)]
-	//[HttpGet("{" + Entities.CourseInstance + "}" + "/{" + UserRoles.Attendee + "}/" + Routes.Count)]
-	//public async Task<ActionResult<int>> GetAttendeeCount(int id) {
-	//	var courseInstance = await this._context.CourseInstances.FindAsync(id);
-	//	return courseInstance is null ? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError }) : this.Ok(courseInstance.Attendees.Count);
-	//}
+	[Authorize(Roles = UserRoles.Administrator + "," + UserRoles.Professor)]
+	[HttpGet("{id}" + "/" + UserRoles.Attendee + "/" + Routes.Count)]
+	public async Task<ActionResult<int>> GetAttendeeCount(int id) {
+		var courseInstance = await this._context.CourseInstances.FindAsync(id);
+		return courseInstance is null ? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError }) : this.Ok(courseInstance.Attendees.Count);
+	}
 }
