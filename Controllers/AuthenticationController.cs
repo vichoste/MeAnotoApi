@@ -47,9 +47,9 @@ public class AuthenticationController : ControllerBase {
 		if (user != null && await this._userManager.CheckPasswordAsync(user, model.Password)) {
 			var userRoles = await this._userManager.GetRolesAsync(user);
 			var authClaims = new List<Claim> {
-					new(ClaimTypes.Name, user.UserName),
-					new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-				};
+				new(ClaimTypes.Name, user.UserName),
+				new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+			};
 			foreach (var userRole in userRoles) {
 				authClaims.Add(new(ClaimTypes.Role, userRole));
 			}
@@ -60,7 +60,7 @@ public class AuthenticationController : ControllerBase {
 				expires: DateTime.Now.AddHours(1),
 				claims: authClaims,
 				signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-				);
+			);
 			return this.Ok(new Token {
 				Status = Statuses.Ok,
 				Info = new JwtSecurityTokenHandler().WriteToken(token),
