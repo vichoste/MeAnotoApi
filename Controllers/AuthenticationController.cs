@@ -15,18 +15,31 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace MeAnotoApi.Controllers;
-
+/// <summary>
+/// Controller for authentication
+/// </summary>
 [Route(Routes.Api + "/" + Routes.Authentication)]
 [ApiController]
 public class AuthenticationController : ControllerBase {
 	private readonly UserManager<ApplicationUser> _userManager;
 	private readonly RoleManager<IdentityRole> _roleManager;
 	private readonly IConfiguration _configuration;
+	/// <summary>
+	/// Creates the controller
+	/// </summary>
+	/// <param name="userManager">User manager</param>
+	/// <param name="roleManager">Role manager</param>
+	/// <param name="configuration">Configuration</param>
 	public AuthenticationController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration) {
 		this._userManager = userManager;
 		this._roleManager = roleManager;
 		this._configuration = configuration;
 	}
+	/// <summary>
+	/// Logs in a user
+	/// </summary>
+	/// <param name="model">Input form</param>
+	/// <returns>Token information in JSON format</returns>
 	[HttpPost]
 	[Route(Routes.Login)]
 	public async Task<IActionResult> Login([FromBody] LoginModel model) {
@@ -57,9 +70,14 @@ public class AuthenticationController : ControllerBase {
 		}
 		return this.StatusCode(403, new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
 	}
+	/// <summary>
+	/// Creates an administrator
+	/// </summary>
+	/// <param name="model">Input form</param>
+	/// <returns>OK if successful in JSON format</returns>
 	[HttpPost]
 	[Route(Routes.Register + "/" + UserRoles.Administrator)]
-	public async Task<IActionResult> RegisterAdministrator([FromBody] RegisterModel model) {
+	public async Task<IActionResult> RegisterAdministrator([FromBody] RegisterModel model) { // TODO this thing is a vulnerability
 		var userExists = await this._userManager.FindByNameAsync(model.Email);
 		if (userExists != null) {
 			return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
@@ -81,6 +99,11 @@ public class AuthenticationController : ControllerBase {
 		}
 		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}
+	/// <summary>
+	/// Creates a manager
+	/// </summary>
+	/// <param name="model">Input form</param>
+	/// <returns>OK if successful in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
 	[Route(Routes.Register + "/" + UserRoles.Manager)]
@@ -106,6 +129,11 @@ public class AuthenticationController : ControllerBase {
 		}
 		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}
+	/// <summary>
+	/// Creates a professor
+	/// </summary>
+	/// <param name="model">Input form</param>
+	/// <returns>OK if successful in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
 	[Route(Routes.Register + "/" + UserRoles.Professor)]
@@ -131,6 +159,11 @@ public class AuthenticationController : ControllerBase {
 		}
 		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}
+	/// <summary>
+	/// Creates an attendee
+	/// </summary>
+	/// <param name="model">Input form</param>
+	/// <returns>OK if successful in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
 	[Route(Routes.Register + "/" + UserRoles.Attendee)]

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeAnotoApi.Migrations
 {
     [DbContext(typeof(MeAnotoContext))]
-    [Migration("20211119233942_Init")]
-    partial class Init
+    [Migration("20211123001104_InitDoc")]
+    partial class InitDoc
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -190,9 +190,6 @@ namespace MeAnotoApi.Migrations
                     b.Property<DateTime>("Creation")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<int?>("EventId")
                         .HasColumnType("int");
 
@@ -201,6 +198,9 @@ namespace MeAnotoApi.Migrations
 
                     b.Property<int?>("RoomId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("Schedule")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
