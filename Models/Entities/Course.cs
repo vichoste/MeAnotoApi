@@ -9,5 +9,5 @@ public class Course : Entity {
 	/// Career
 	/// </summary>
 	[JsonIgnore]
-	public virtual Career Career { get; set; }
+	public Career Career { get; set; }
 }

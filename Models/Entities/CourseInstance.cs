@@ -21,7 +21,7 @@ public class CourseInstance : Entity {
 	/// Course
 	/// </summary>
 	[JsonIgnore]
-	public virtual Course Course { get; set; }
+	public Course Course { get; set; }
 	/// <summary>
 	/// Year
 	/// </summary>
@@ -41,15 +41,15 @@ public class CourseInstance : Entity {
 	/// Event instances
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<EventInstance> EventInstances { get; set; }
+	public ICollection<EventInstance> EventInstances { get; set; }
 	/// <summary>
 	/// Attendees
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<Attendee> Attendees { get; set; }
+	public ICollection<Attendee> Attendees { get; set; }
 	/// <summary>
 	/// Professors
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<Professor> Professors { get; set; }
+	public ICollection<Professor> Professors { get; set; }
 }

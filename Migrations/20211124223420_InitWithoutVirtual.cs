@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MeAnotoApi.Migrations
 {
-    public partial class NewInit : Migration
+    public partial class InitWithoutVirtual : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

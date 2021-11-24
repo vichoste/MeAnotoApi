@@ -19,10 +19,10 @@ public class Attendee : ApplicationUser {
 	/// Event instances
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<EventInstance> EventInstances { get; set; }
+	public ICollection<EventInstance> EventInstances { get; set; }
 	/// <summary>
 	/// Course instances
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<CourseInstance> CourseInstances { get; set; }
+	public ICollection<CourseInstance> CourseInstances { get; set; }
 }

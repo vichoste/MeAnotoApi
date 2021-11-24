@@ -21,10 +21,10 @@ public class Room : Entity {
 	/// Campus
 	/// </summary>
 	[JsonIgnore]
-	public virtual CampusSingular CampusSingular { get; set; }
+	public CampusSingular CampusSingular { get; set; }
 	/// <summary>
 	/// Event instances
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<EventInstance> EventInstances { get; set; }
+	public ICollection<EventInstance> EventInstances { get; set; }
 }

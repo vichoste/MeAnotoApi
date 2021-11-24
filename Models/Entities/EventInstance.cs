@@ -18,22 +18,22 @@ public class EventInstance : Entity {
 	/// Event
 	/// </summary>
 	[JsonIgnore]
-	public virtual Event Event { get; set; }
+	public Event Event { get; set; }
 	/// <summary>
 	/// Course instance
 	/// </summary>
 	[JsonIgnore]
-	public virtual CourseInstance CourseInstance { get; set; }
+	public CourseInstance CourseInstance { get; set; }
 	/// <summary>
 	/// Room
 	/// </summary>
 	[JsonIgnore]
-	public virtual Room Room { get; set; }
+	public Room Room { get; set; }
 	/// <summary>
 	/// Attendees
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<Attendee> Attendees { get; set; }
+	public ICollection<Attendee> Attendees { get; set; }
 	/// <summary>
 	/// Schedule date
 	/// </summary>

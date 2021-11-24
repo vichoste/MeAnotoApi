@@ -17,15 +17,15 @@ public class CampusSingular : Entity {
 	/// Institution
 	/// </summary>
 	[JsonIgnore]
-	public virtual Institution Institution { get; set; }
+	public Institution Institution { get; set; }
 	/// <summary>
 	/// Careers
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<Career> Careers { get; set; }
+	public ICollection<Career> Careers { get; set; }
 	/// <summary>
 	/// Rooms
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<Room> Rooms { get; set; }
+	public ICollection<Room> Rooms { get; set; }
 }

@@ -16,15 +16,15 @@ public class Event : Entity {
 	/// Professor
 	/// </summary>
 	[JsonIgnore]
-	public virtual Professor Professor { get; set; }
+	public Professor Professor { get; set; }
 	/// <summary>
 	/// Institution
 	/// </summary>
 	[JsonIgnore]
-	public virtual Institution Institution { get; set; }
+	public Institution Institution { get; set; }
 	/// <summary>
 	/// Event instances
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<EventInstance> EventInstances { get; set; }
+	public ICollection<EventInstance> EventInstances { get; set; }
 }

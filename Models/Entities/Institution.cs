@@ -10,10 +10,10 @@ public class Institution : Entity {
 	/// Campuses
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<CampusSingular> CampusSingulars { get; set; }
+	public ICollection<CampusSingular> CampusSingulars { get; set; }
 	/// <summary>
 	/// Events
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<Event> Events { get; set; }
+	public ICollection<Event> Events { get; set; }
 }

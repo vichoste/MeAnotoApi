@@ -29,5 +29,5 @@ public class ApplicationUser : IdentityUser {
 	/// Institution
 	/// </summary>
 	[JsonIgnore]
-	public virtual Institution Institution { get; set; }
+	public Institution Institution { get; set; }
 }

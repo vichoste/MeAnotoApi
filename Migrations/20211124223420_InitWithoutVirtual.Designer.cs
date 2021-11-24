@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeAnotoApi.Migrations
 {
     [DbContext(typeof(MeAnotoContext))]
-    [Migration("20211124214853_NewInit")]
-    partial class NewInit
+    [Migration("20211124223420_InitWithoutVirtual")]
+    partial class InitWithoutVirtual
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace MeAnotoApi.Controllers;
 /// <summary>
@@ -32,15 +31,14 @@ public class CourseInstanceController : ControllerBase {
 	/// </summary>
 	/// <returns>List of owned courses in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<CourseInstance>>> Get() {
+	public ActionResult<IEnumerable<CourseInstance>> Get() {
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		if (professor is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
-		var courseInstances = await this._context.CourseInstances.ToListAsync();
-		var myCourseInstances = courseInstances.Where(c => c.Professors.Contains(professor));
-		return this.Ok(courseInstances);
+		var myCourseInstances = this._context.CourseInstances.Where(c => c.Professors.Contains(professor));
+		return this.Ok(myCourseInstances);
 	}
 	/// <summary>
 	/// Gets a course instance owned by a professor

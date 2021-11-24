@@ -14,10 +14,10 @@ public class Career : Entity {
 	/// Campuses
 	/// </summary>
 	[JsonIgnore]
-	public virtual CampusSingular CampusSingular { get; set; }
+	public CampusSingular CampusSingular { get; set; }
 	/// <summary>
 	/// Courses
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<Course> Courses { get; set; }
+	public ICollection<Course> Courses { get; set; }
 }

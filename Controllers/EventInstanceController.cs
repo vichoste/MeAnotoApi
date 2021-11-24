@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace MeAnotoApi.Controllers;
 /// <summary>
@@ -32,14 +31,13 @@ public class EventInstanceController : ControllerBase {
 	/// </summary>
 	/// <returns>List of owned events in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<EventInstance>>> Get() {
+	public ActionResult<IEnumerable<EventInstance>> Get() {
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		if (professor is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
-		var eventInstances = await this._context.EventInstances.ToListAsync();
-		var myEvents = eventInstances.Where(e => e.Event.Professor == professor);
+		var myEvents = this._context.EventInstances.Where(e => e.Event.Professor == professor);
 		return this.Ok(myEvents);
 	}
 	/// <summary>

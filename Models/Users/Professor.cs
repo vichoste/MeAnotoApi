@@ -19,10 +19,10 @@ public class Professor : ApplicationUser {
 	/// Events
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<Event> Events { get; set; }
+	public ICollection<Event> Events { get; set; }
 	/// <summary>
 	/// Course instances
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<CourseInstance> CourseInstances { get; set; }
+	public ICollection<CourseInstance> CourseInstances { get; set; }
 }
