@@ -39,11 +39,8 @@ public class CourseInstanceController : ControllerBase {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
 		var courseInstances = await this._context.CourseInstances.ToListAsync();
-		var myCourseInstances = courseInstances.Where(
-			c => c.Professors.Any(
-			p => p == professor
-		));
-		return this.Ok(myCourseInstances);
+		var myCourseInstances = courseInstances.Where(c => c.Professors.Contains(professor));
+		return this.Ok(courseInstances);
 	}
 	/// <summary>
 	/// Gets a course instance owned by a professor

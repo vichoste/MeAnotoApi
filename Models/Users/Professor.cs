@@ -9,6 +9,13 @@ namespace MeAnotoApi.Models.Users;
 /// </summary>
 public class Professor : ApplicationUser {
 	/// <summary>
+	/// Creates a professor
+	/// </summary>
+	public Professor() {
+		this.Events = new HashSet<Event>();
+		this.CourseInstances = new HashSet<CourseInstance>();
+	}
+	/// <summary>
 	/// Events
 	/// </summary>
 	[JsonIgnore]
