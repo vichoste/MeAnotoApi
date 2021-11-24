@@ -62,24 +62,24 @@ public class EventController : ControllerBase {
 	/// <summary>
 	/// Creates an event
 	/// </summary>
-	/// <param name="entity">Event</param>
+	/// <param name="event">Event</param>
 	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{institutionId}")]
-	public async Task<ActionResult<Event>> Post(Event entity, int institutionId) {
+	public async Task<ActionResult<Event>> Post(Event @event, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
 		var name = this.HttpContext.User.Identity.Name;
-		var user = this._context.Professors.First(p => p.UserName == name);
-		if (user is null) {
+		var professor = this._context.Professors.First(p => p.UserName == name);
+		if (professor is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
-		entity.Institution = institution;
-		entity.Professor = user;
-		_ = this._context.Events.Add(entity);
+		@event.Institution = institution;
+		@event.Professor = professor;
+		_ = this._context.Events.Add(@event);
 		_ = await this._context.SaveChangesAsync();
 		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}

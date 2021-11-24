@@ -69,7 +69,7 @@ public class RoomController : ControllerBase {
 	/// <param name="capacity">New capacity</param>
 	/// <returns>OK if updated successfully</returns>
 	[Authorize(Roles = UserRoles.Manager)]
-	[HttpPatch(Routes.Update + "/{roomId}/{" + JsonPropertyNames.Capacity + "}")]
+	[HttpPatch(Routes.Update + "/{roomId}/{capacity}")]
 	public async Task<ActionResult<Room>> Update(int roomId, int capacity) {
 		var entity = await this._context.Rooms.FindAsync(roomId);
 		if (entity is not null) {
