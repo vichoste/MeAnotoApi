@@ -167,7 +167,6 @@ public class AuthenticationController : ControllerBase {
 		if (!result.Succeeded) {
 			return this.StatusCode(500, new Response { Status = Statuses.InternalServerError, Message = Messages.InternalServerError });
 		}
-		_ = await this._context.Professors.AddAsync(user);
 		if (!await this._roleManager.RoleExistsAsync(UserRoles.Professor)) {
 			_ = await this._roleManager.CreateAsync(new(UserRoles.Professor));
 		}
@@ -204,7 +203,6 @@ public class AuthenticationController : ControllerBase {
 		if (!result.Succeeded) {
 			return this.StatusCode(500, new Response { Status = Statuses.InternalServerError, Message = Messages.InternalServerError });
 		}
-		_ = await this._context.Attendees.AddAsync(user);
 		if (!await this._roleManager.RoleExistsAsync(UserRoles.Attendee)) {
 			_ = await this._roleManager.CreateAsync(new(UserRoles.Attendee));
 		}
