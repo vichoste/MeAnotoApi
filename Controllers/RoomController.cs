@@ -40,8 +40,8 @@ public class RoomController : ControllerBase {
 	[HttpGet("{id}")]
 	public async Task<ActionResult<Room>> Get(int id) {
 		var entity = await this._context.Rooms.FindAsync(id);
-		return entity is not null ?
-			this.Ok(entity)
+		return entity is not null
+			? this.Ok(entity)
 			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>
