@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using MeAnotoApi.Authentication;
+using MeAnotoApi.Contexts;
 using MeAnotoApi.Models.Users;
 
 using Microsoft.AspNetCore.Authorization;
@@ -20,20 +21,23 @@ namespace MeAnotoApi.Controllers;
 /// </summary>
 [Route(Routes.Api + "/" + Routes.Authentication)]
 [ApiController]
-public class AuthenticationController : ControllerBase {
+public class AuthenticationController : ControllerBase { // TODO Associate users with institution
 	private readonly UserManager<ApplicationUser> _userManager;
 	private readonly RoleManager<IdentityRole> _roleManager;
 	private readonly IConfiguration _configuration;
+	private readonly MeAnotoContext _context;
 	/// <summary>
 	/// Creates the controller
 	/// </summary>
 	/// <param name="userManager">User manager</param>
 	/// <param name="roleManager">Role manager</param>
 	/// <param name="configuration">Configuration</param>
-	public AuthenticationController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration) {
+	/// <param name="context">Database context</param>
+	public AuthenticationController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, MeAnotoContext context) {
 		this._userManager = userManager;
 		this._roleManager = roleManager;
 		this._configuration = configuration;
+		this._context = context;
 	}
 	/// <summary>
 	/// Logs in a user
@@ -68,7 +72,7 @@ public class AuthenticationController : ControllerBase {
 				Roles = userRoles
 			});
 		}
-		return this.StatusCode(403, new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
+		return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
 	}
 	/// <summary>
 	/// Creates an administrator
@@ -103,11 +107,16 @@ public class AuthenticationController : ControllerBase {
 	/// Creates a manager
 	/// </summary>
 	/// <param name="model">Input form</param>
+	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if successful in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
-	[Route(Routes.Register + "/" + UserRoles.Manager)]
-	public async Task<IActionResult> RegisterManager([FromBody] RegisterModel model) {
+	[Route(Routes.Register + "/" + UserRoles.Manager + "/{institutionId}")]
+	public async Task<IActionResult> RegisterManager([FromBody] RegisterModel model, int institutionId) {
+		var institution = await this._context.Institutions.FindAsync(institutionId);
+		if (institution is null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		}
 		var userExists = await this._userManager.FindByNameAsync(model.Email);
 		if (userExists != null) {
 			return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
@@ -115,6 +124,7 @@ public class AuthenticationController : ControllerBase {
 		var user = new ApplicationUser() {
 			UserName = model.Email,
 			Email = model.Email,
+			Institution = institution,
 			SecurityStamp = Guid.NewGuid().ToString(),
 		};
 		var result = await this._userManager.CreateAsync(user, model.Password);
@@ -133,24 +143,31 @@ public class AuthenticationController : ControllerBase {
 	/// Creates a professor
 	/// </summary>
 	/// <param name="model">Input form</param>
+	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if successful in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
-	[Route(Routes.Register + "/" + UserRoles.Professor)]
-	public async Task<IActionResult> RegisterProfessor([FromBody] RegisterModel model) {
+	[Route(Routes.Register + "/" + UserRoles.Professor + "/{institutionId}")]
+	public async Task<IActionResult> RegisterProfessor([FromBody] RegisterModel model, int institutionId) {
+		var institution = await this._context.Institutions.FindAsync(institutionId);
+		if (institution is null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		}
 		var userExists = await this._userManager.FindByNameAsync(model.Email);
 		if (userExists != null) {
 			return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
 		}
-		var user = new ApplicationUser() {
+		var user = new Professor() {
 			UserName = model.Email,
 			Email = model.Email,
+			Institution = institution,
 			SecurityStamp = Guid.NewGuid().ToString(),
 		};
 		var result = await this._userManager.CreateAsync(user, model.Password);
 		if (!result.Succeeded) {
 			return this.StatusCode(500, new Response { Status = Statuses.InternalServerError, Message = Messages.InternalServerError });
 		}
+		_ = await this._context.Professors.AddAsync(user);
 		if (!await this._roleManager.RoleExistsAsync(UserRoles.Professor)) {
 			_ = await this._roleManager.CreateAsync(new(UserRoles.Professor));
 		}
@@ -163,24 +180,31 @@ public class AuthenticationController : ControllerBase {
 	/// Creates an attendee
 	/// </summary>
 	/// <param name="model">Input form</param>
+	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if successful in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
-	[Route(Routes.Register + "/" + UserRoles.Attendee)]
-	public async Task<IActionResult> RegisterAttendee([FromBody] RegisterModel model) {
+	[Route(Routes.Register + "/" + UserRoles.Attendee + "/{institutionId}")]
+	public async Task<IActionResult> RegisterAttendee([FromBody] RegisterModel model, int institutionId) {
+		var institution = await this._context.Institutions.FindAsync(institutionId);
+		if (institution is null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		}
 		var userExists = await this._userManager.FindByNameAsync(model.Email);
 		if (userExists != null) {
 			return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
 		}
-		var user = new ApplicationUser() {
+		var user = new Attendee() {
 			UserName = model.Email,
 			Email = model.Email,
+			Institution = institution,
 			SecurityStamp = Guid.NewGuid().ToString(),
 		};
 		var result = await this._userManager.CreateAsync(user, model.Password);
 		if (!result.Succeeded) {
 			return this.StatusCode(500, new Response { Status = Statuses.InternalServerError, Message = Messages.InternalServerError });
 		}
+		_ = await this._context.Attendees.AddAsync(user);
 		if (!await this._roleManager.RoleExistsAsync(UserRoles.Attendee)) {
 			_ = await this._roleManager.CreateAsync(new(UserRoles.Attendee));
 		}

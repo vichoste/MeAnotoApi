@@ -88,6 +88,7 @@ public class Startup {
 			};
 		});
 		_ = services.AddCors(options => options.AddPolicy("FrontendCors", builder => _ = builder.WithOrigins("http://localhost:8080", "http://127.0.0.1:8080").AllowAnyHeader().AllowAnyMethod()));
+		_ = services.AddHttpContextAccessor();
 	}
 	// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 	/// <summary>
