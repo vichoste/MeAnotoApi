@@ -9,6 +9,10 @@ namespace MeAnotoApi.Models.Entities;
 /// </summary>
 public class Room : Entity {
 	/// <summary>
+	/// Creates a room
+	/// </summary>
+	public Room() => this.EventInstances = new HashSet<EventInstance>();
+	/// <summary>
 	/// Capacity
 	/// </summary>
 	[JsonPropertyName(JsonPropertyNames.Capacity)]

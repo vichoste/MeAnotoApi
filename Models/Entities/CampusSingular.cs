@@ -7,6 +7,13 @@ namespace MeAnotoApi.Models.Entities;
 /// </summary>
 public class CampusSingular : Entity {
 	/// <summary>
+	/// Creates a campus
+	/// </summary>
+	public CampusSingular() {
+		this.Careers = new HashSet<Career>();
+		this.Rooms = new HashSet<Room>();
+	}
+	/// <summary>
 	/// Institution
 	/// </summary>
 	[JsonIgnore]

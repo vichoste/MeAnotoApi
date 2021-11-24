@@ -9,6 +9,10 @@ namespace MeAnotoApi.Models.Entities;
 /// </summary>
 public class Event : Entity {
 	/// <summary>
+	/// Creates a event
+	/// </summary>
+	public Event() => this.EventInstances = new HashSet<EventInstance>();
+	/// <summary>
 	/// Professor
 	/// </summary>
 	[JsonIgnore]

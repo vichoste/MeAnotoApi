@@ -10,6 +10,14 @@ namespace MeAnotoApi.Models.Entities;
 /// </summary>
 public class CourseInstance : Entity {
 	/// <summary>
+	/// Creates a course instance
+	/// </summary>
+	public CourseInstance() {
+		this.EventInstances = new HashSet<EventInstance>();
+		this.Attendees = new HashSet<Attendee>();
+		this.Professors = new HashSet<Professor>();
+	}
+	/// <summary>
 	/// Course
 	/// </summary>
 	[JsonIgnore]

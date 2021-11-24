@@ -11,6 +11,10 @@ namespace MeAnotoApi.Models.Entities;
 /// </summary>
 public class EventInstance : Entity {
 	/// <summary>
+	/// Creates a event instance
+	/// </summary>
+	public EventInstance() => this.Attendees = new HashSet<Attendee>();
+	/// <summary>
 	/// Event
 	/// </summary>
 	[JsonIgnore]
