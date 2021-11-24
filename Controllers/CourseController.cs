@@ -39,24 +39,26 @@ public class CourseController : ControllerBase {
 	/// <returns>Course object in JSON format</returns>
 	[HttpGet("{id}")]
 	public async Task<ActionResult<Course>> Get(int id) {
-		var entity = await this._context.Courses.FindAsync(id);
-		return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
+		var course = await this._context.Courses.FindAsync(id);
+		return course is not null
+			? this.Ok(course)
+			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>
 	/// Creates a course
 	/// </summary>
-	/// <param name="entity">Course</param>
+	/// <param name="course">Course</param>
 	/// <param name="careerId">Career ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost("{careerId}")]
-	public async Task<ActionResult<Course>> Post(Course entity, int careerId) {
+	public async Task<ActionResult<Course>> Post(Course course, int careerId) {
 		var career = await this._context.Careers.FindAsync(careerId);
 		if (career is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
-		entity.Career = career;
-		_ = this._context.Courses.Add(entity);
+		course.Career = career;
+		_ = this._context.Courses.Add(course);
 		_ = await this._context.SaveChangesAsync();
 		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}

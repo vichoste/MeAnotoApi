@@ -39,24 +39,26 @@ public class CampusSingularController : ControllerBase {
 	/// <returns>Campus object in JSON format</returns>
 	[HttpGet("{id}")]
 	public async Task<ActionResult<CampusSingular>> Get(int id) {
-		var entity = await this._context.CampusSingulars.FindAsync(id);
-		return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
+		var campusSingular = await this._context.CampusSingulars.FindAsync(id);
+		return campusSingular is not null
+			? this.Ok(campusSingular)
+			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>
 	/// Creates a campus
 	/// </summary>
-	/// <param name="entity">Campus</param>
+	/// <param name="campusSingular">Campus</param>
 	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if created successfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost("{institutionId}")]
-	public async Task<ActionResult<CampusSingular>> Post(CampusSingular entity, int institutionId) {
+	public async Task<ActionResult<CampusSingular>> Post(CampusSingular campusSingular, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
-		entity.Institution = institution;
-		_ = this._context.CampusSingulars.Add(entity);
+		campusSingular.Institution = institution;
+		_ = this._context.CampusSingulars.Add(campusSingular);
 		_ = await this._context.SaveChangesAsync();
 		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}

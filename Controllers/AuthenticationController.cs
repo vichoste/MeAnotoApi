@@ -21,7 +21,7 @@ namespace MeAnotoApi.Controllers;
 /// </summary>
 [Route(Routes.Api + "/" + Routes.Authentication)]
 [ApiController]
-public class AuthenticationController : ControllerBase { // TODO Associate users with institution
+public class AuthenticationController : ControllerBase {
 	private readonly UserManager<ApplicationUser> _userManager;
 	private readonly RoleManager<IdentityRole> _roleManager;
 	private readonly IConfiguration _configuration;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using MeAnotoApi.Authentication;
@@ -27,20 +28,36 @@ public class EventController : ControllerBase {
 	/// <param name="context">Database context</param>
 	public EventController(MeAnotoContext context) => this._context = context;
 	/// <summary>
-	/// Gets all the events
+	/// Gets all the events owned by the current user
 	/// </summary>
-	/// <returns>List of events in JSON format</returns>
+	/// <returns>List of owned events in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<Event>>> Get() => await this._context.Events.ToListAsync();
+	public async Task<ActionResult<IEnumerable<Event>>> Get() {
+		var name = this.HttpContext.User.Identity.Name;
+		var professor = this._context.Professors.First(p => p.UserName == name);
+		if (professor is null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		}
+		var @event = await this._context.Events.ToListAsync();
+		var myEvents = @event.Where(c => c.Professor == professor);
+		return this.Ok(myEvents);
+	}
 	/// <summary>
-	/// Gets an event
+	/// Gets a event
 	/// </summary>
-	/// <param name="id">Event ID</param>
-	/// <returns>Event object in JSON format</returns>
+	/// <param name="id">Course ID</param>
+	/// <returns>Course object in JSON format</returns>
 	[HttpGet("{id}")]
 	public async Task<ActionResult<Event>> Get(int id) {
-		var entity = await this._context.Events.FindAsync(id);
-		return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
+		var @event = await this._context.Events.FindAsync(id);
+		var name = this.HttpContext.User.Identity.Name;
+		var professor = this._context.Professors.First(p => p.UserName == name);
+		return professor is null
+			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
+			: !(@event.Professor == professor)
+			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
+			: @event is not null ? this.Ok(@event)
+			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>
 	/// Creates an event
@@ -55,7 +72,13 @@ public class EventController : ControllerBase {
 		if (institution is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
+		var name = this.HttpContext.User.Identity.Name;
+		var user = this._context.Professors.First(p => p.UserName == name);
+		if (user is null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		}
 		entity.Institution = institution;
+		entity.Professor = user;
 		_ = this._context.Events.Add(entity);
 		_ = await this._context.SaveChangesAsync();
 		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });

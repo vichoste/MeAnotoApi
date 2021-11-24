@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
-
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 namespace MeAnotoApi.Migrations {
 	public partial class InitDoc : Migration {
 		protected override void Up(MigrationBuilder migrationBuilder) {
@@ -604,3 +604,4 @@ namespace MeAnotoApi.Migrations {
 		}
 	}
 }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

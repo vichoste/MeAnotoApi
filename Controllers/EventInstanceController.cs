@@ -4,12 +4,15 @@ using System.Threading.Tasks;
 using MeAnotoApi.Authentication;
 using MeAnotoApi.Contexts;
 using MeAnotoApi.Models.Entities;
+using MeAnotoApi.Models.Users;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace MeAnotoApi.Controllers;
 /// <summary>
@@ -20,12 +23,23 @@ namespace MeAnotoApi.Controllers;
 [EnableCors("FrontendCors")]
 [Route(Routes.Api + "/" + Entities.EventInstance)]
 public class EventInstanceController : ControllerBase {
+	private readonly UserManager<ApplicationUser> _userManager;
+	private readonly RoleManager<IdentityRole> _roleManager;
+	private readonly IConfiguration _configuration;
 	private readonly MeAnotoContext _context;
 	/// <summary>
 	/// Creates the controller
 	/// </summary>
+	/// <param name="userManager">User manager</param>
+	/// <param name="roleManager">Role manager</param>
+	/// <param name="configuration">Configuration</param>
 	/// <param name="context">Database context</param>
-	public EventInstanceController(MeAnotoContext context) => this._context = context;
+	public EventInstanceController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, MeAnotoContext context) {
+		this._userManager = userManager;
+		this._roleManager = roleManager;
+		this._configuration = configuration;
+		this._context = context;
+	}
 	/// <summary>
 	/// Gets all the event instances
 	/// </summary>
