@@ -28,7 +28,7 @@ public class CourseInstanceController : ControllerBase {
 	/// <param name="context">Database context</param>
 	public CourseInstanceController(MeAnotoContext context) => this._context = context;
 	/// <summary>
-	/// Gets all the course instances owned by the current user
+	/// Gets all the course instances owned by the current professor
 	/// </summary>
 	/// <returns>List of owned courses in JSON format</returns>
 	[HttpGet(Routes.All)]
@@ -46,7 +46,7 @@ public class CourseInstanceController : ControllerBase {
 		return this.Ok(myCourseInstances);
 	}
 	/// <summary>
-	/// Gets a course instance
+	/// Gets a course instance owned by a professor
 	/// </summary>
 	/// <param name="id">Course instance ID</param>
 	/// <returns>Course instance object in JSON format</returns>
@@ -111,7 +111,7 @@ public class CourseInstanceController : ControllerBase {
 		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.EnrolledOk });
 	}
 	/// <summary>
-	/// Enrolls an professor into a course instance
+	/// Enrolls an attendee into a course instance
 	/// </summary>
 	/// <param name="id">Course instance ID</param>
 	/// <returns>OK if enrolled successfully</returns>

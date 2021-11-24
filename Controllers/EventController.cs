@@ -28,7 +28,7 @@ public class EventController : ControllerBase {
 	/// <param name="context">Database context</param>
 	public EventController(MeAnotoContext context) => this._context = context;
 	/// <summary>
-	/// Gets all the events owned by the current user
+	/// Gets all the events owned by the current professor
 	/// </summary>
 	/// <returns>List of owned events in JSON format</returns>
 	[HttpGet(Routes.All)]
@@ -43,7 +43,7 @@ public class EventController : ControllerBase {
 		return this.Ok(myEvents);
 	}
 	/// <summary>
-	/// Gets a event
+	/// Gets an event owned by the current professor
 	/// </summary>
 	/// <param name="id">Course ID</param>
 	/// <returns>Course object in JSON format</returns>

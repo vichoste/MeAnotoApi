@@ -40,7 +40,9 @@ public class InstitutionController : ControllerBase {
 	[HttpGet("{id}")]
 	public async Task<ActionResult<Institution>> Get(int id) {
 		var entity = await this._context.Institutions.FindAsync(id);
-		return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
+		return entity is not null
+			? this.Ok(entity)
+			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>
 	/// Creates an institution

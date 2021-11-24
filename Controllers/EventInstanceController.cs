@@ -1,18 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using MeAnotoApi.Authentication;
 using MeAnotoApi.Contexts;
 using MeAnotoApi.Models.Entities;
-using MeAnotoApi.Models.Users;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace MeAnotoApi.Controllers;
 /// <summary>
@@ -23,60 +21,76 @@ namespace MeAnotoApi.Controllers;
 [EnableCors("FrontendCors")]
 [Route(Routes.Api + "/" + Entities.EventInstance)]
 public class EventInstanceController : ControllerBase {
-	private readonly UserManager<ApplicationUser> _userManager;
-	private readonly RoleManager<IdentityRole> _roleManager;
-	private readonly IConfiguration _configuration;
 	private readonly MeAnotoContext _context;
 	/// <summary>
 	/// Creates the controller
 	/// </summary>
-	/// <param name="userManager">User manager</param>
-	/// <param name="roleManager">Role manager</param>
-	/// <param name="configuration">Configuration</param>
 	/// <param name="context">Database context</param>
-	public EventInstanceController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, MeAnotoContext context) {
-		this._userManager = userManager;
-		this._roleManager = roleManager;
-		this._configuration = configuration;
-		this._context = context;
+	public EventInstanceController(MeAnotoContext context) => this._context = context;
+	/// <summary>
+	/// Gets all the event instances owned by the current professor
+	/// </summary>
+	/// <returns>List of owned events in JSON format</returns>
+	[HttpGet(Routes.All)]
+	public async Task<ActionResult<IEnumerable<EventInstance>>> Get() {
+		var name = this.HttpContext.User.Identity.Name;
+		var professor = this._context.Professors.First(p => p.UserName == name);
+		if (professor is null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		}
+		var eventInstances = await this._context.EventInstances.ToListAsync();
+		var myEvents = eventInstances.Where(e => e.Event.Professor == professor);
+		return this.Ok(myEvents);
 	}
 	/// <summary>
-	/// Gets all the event instances
+	/// Gets an event instance owned by the current professor
 	/// </summary>
-	/// <returns>List of event instances in JSON format</returns>
-	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<EventInstance>>> Get() => await this._context.EventInstances.ToListAsync();
-	/// <summary>
-	/// Gets an event instance
-	/// </summary>
-	/// <param name="id">Event instance ID</param>
-	/// <returns>Event instance object in JSON format</returns>
+	/// <param name="id">Course ID</param>
+	/// <returns>Course object in JSON format</returns>
 	[HttpGet("{id}")]
 	public async Task<ActionResult<EventInstance>> Get(int id) {
-		var entity = await this._context.EventInstances.FindAsync(id);
-		return entity is not null ? this.Ok(entity) : this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
+		var eventInstance = await this._context.EventInstances.FindAsync(id);
+		var name = this.HttpContext.User.Identity.Name;
+		var professor = this._context.Professors.First(p => p.UserName == name);
+		return professor is null
+			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
+			: !(eventInstance.Event.Professor == professor)
+			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
+			: eventInstance is not null ? this.Ok(eventInstance)
+			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>
 	/// Creates an event instance
 	/// </summary>
-	/// <param name="entity">Event instance</param>
+	/// <param name="eventInstance">Event instance</param>
 	/// <param name="eventId">Event ID</param>
 	/// <param name="courseInstanceId">Course instance ID</param>
 	/// <param name="roomId">Room ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{eventId}/{courseInstanceId}/{roomId}")]
-	public async Task<ActionResult<EventInstance>> Post(EventInstance entity, int eventId, int courseInstanceId, int roomId) {
+	public async Task<ActionResult<EventInstance>> Post(EventInstance eventInstance, int eventId, int courseInstanceId, int roomId) {
 		var @event = await this._context.Events.FindAsync(eventId);
-		var courseInstance = await this._context.CourseInstances.FindAsync(courseInstanceId);
-		var room = await this._context.Rooms.FindAsync(roomId);
-		if (@event is null || courseInstance is null || room is null) {
+		if (@event is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
-		entity.Event = @event;
-		entity.CourseInstance = courseInstance;
-		entity.Room = room;
-		_ = this._context.EventInstances.Add(entity);
+		var name = this.HttpContext.User.Identity.Name;
+		var professor = this._context.Professors.First(p => p.UserName == name);
+		if (professor is null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		}
+		if (@event.Professor != professor) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		}
+		var courseInstance = await this._context.CourseInstances.FindAsync(courseInstanceId);
+		var room = await this._context.Rooms.FindAsync(roomId);
+		if (courseInstance is null || room is null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		}
+		eventInstance.Event = @event;
+		eventInstance.CourseInstance = courseInstance;
+		eventInstance.Room = room;
+		_ = this._context.EventInstances.Add(eventInstance);
 		_ = await this._context.SaveChangesAsync();
 		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}
