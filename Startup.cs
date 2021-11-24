@@ -17,11 +17,24 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace MeAnotoApi;
-
+/// <summary>
+/// Startup
+/// </summary>
 public class Startup {
+	/// <summary>
+	/// Startup constructor
+	/// </summary>
+	/// <param name="configuration">Configuration</param>
 	public Startup(IConfiguration configuration) => this.Configuration = configuration;
+	/// <summary>
+	/// Configuration
+	/// </summary>
 	public IConfiguration Configuration { get; }
 	// This method gets called by the runtime. Use this method to add services to the container.
+	/// <summary>
+	/// Services configuration
+	/// </summary>
+	/// <param name="services">Services</param>
 	public void ConfigureServices(IServiceCollection services) {
 		_ = services.AddControllers();
 		_ = services.AddSwaggerGen(c => {
@@ -57,6 +70,7 @@ public class Startup {
 			options.Password.RequiredUniqueChars = 0;
 			options.Password.RequireNonAlphanumeric = false;
 			options.Password.RequireUppercase = false;
+			options.Password.RequireLowercase = false;
 		}).AddEntityFrameworkStores<MeAnotoContext>().AddDefaultTokenProviders();
 		_ = services.AddAuthentication(options => {
 			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -74,8 +88,14 @@ public class Startup {
 			};
 		});
 		_ = services.AddCors(options => options.AddPolicy("FrontendCors", builder => _ = builder.WithOrigins("http://localhost:8080", "http://127.0.0.1:8080").AllowAnyHeader().AllowAnyMethod()));
+		_ = services.AddHttpContextAccessor();
 	}
 	// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+	/// <summary>
+	/// Configure
+	/// </summary>
+	/// <param name="app">Application</param>
+	/// <param name="env">Environment</param>
 	public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
 		if (env.IsDevelopment()) {
 			_ = app.UseDeveloperExceptionPage();

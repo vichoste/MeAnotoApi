@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeAnotoApi.Migrations
 {
     [DbContext(typeof(MeAnotoContext))]
-    [Migration("20211118022000_InitAgain")]
-    partial class InitAgain
+    [Migration("20211124223420_InitWithoutVirtual")]
+    partial class InitWithoutVirtual
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -190,9 +190,6 @@ namespace MeAnotoApi.Migrations
                     b.Property<DateTime>("Creation")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<int?>("EventId")
                         .HasColumnType("int");
 
@@ -201,6 +198,9 @@ namespace MeAnotoApi.Migrations
 
                     b.Property<int?>("RoomId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("Schedule")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
@@ -252,7 +252,6 @@ namespace MeAnotoApi.Migrations
             modelBuilder.Entity("MeAnotoApi.Models.Users.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.Property<int>("AccessFailedCount")
@@ -267,8 +266,8 @@ namespace MeAnotoApi.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("tinyint(1)");
@@ -289,12 +288,12 @@ namespace MeAnotoApi.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
 
                     b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("longtext");
@@ -315,8 +314,8 @@ namespace MeAnotoApi.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("UserName")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
 
                     b.HasKey("Id");
 
@@ -337,7 +336,6 @@ namespace MeAnotoApi.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -345,12 +343,12 @@ namespace MeAnotoApi.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
 
                     b.Property<string>("NormalizedName")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
 
                     b.HasKey("Id");
 
@@ -365,7 +363,6 @@ namespace MeAnotoApi.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(255)
                         .HasColumnType("int");
 
                     b.Property<string>("ClaimType")
@@ -376,7 +373,6 @@ namespace MeAnotoApi.Migrations
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
@@ -390,7 +386,6 @@ namespace MeAnotoApi.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(255)
                         .HasColumnType("int");
 
                     b.Property<string>("ClaimType")
@@ -401,7 +396,6 @@ namespace MeAnotoApi.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
@@ -414,11 +408,9 @@ namespace MeAnotoApi.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("ProviderDisplayName")
@@ -426,7 +418,6 @@ namespace MeAnotoApi.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.HasKey("LoginProvider", "ProviderKey");
@@ -439,11 +430,9 @@ namespace MeAnotoApi.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("RoleId")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.HasKey("UserId", "RoleId");
@@ -456,15 +445,12 @@ namespace MeAnotoApi.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("Value")

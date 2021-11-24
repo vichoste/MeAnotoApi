@@ -6,7 +6,7 @@
     <StartupObject>MeAnotoApi.Program</StartupObject>
     <AnalysisLevel>6.0</AnalysisLevel>
     <Nullable>disable</Nullable>
-    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

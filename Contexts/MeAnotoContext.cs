@@ -1,46 +1,63 @@
 ﻿using MeAnotoApi.Models.Entities;
 using MeAnotoApi.Models.Users;
 
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace MeAnotoApi.Contexts;
-
+/// <summary>
+/// Database context
+/// </summary>
 public class MeAnotoContext : IdentityDbContext<ApplicationUser> {
+	/// <summary>
+	/// Attendees
+	/// </summary>
 	public DbSet<Attendee> Attendees { get; set; }
+	/// <summary>
+	/// Professors
+	/// </summary>
 	public DbSet<Professor> Professors { get; set; }
+	/// <summary>
+	/// Institutions
+	/// </summary>
 	public DbSet<Institution> Institutions { get; set; }
+	/// <summary>
+	/// Campuses
+	/// </summary>
 	public DbSet<CampusSingular> CampusSingulars { get; set; }
+	/// <summary>
+	/// Careers
+	/// </summary>
 	public DbSet<Career> Careers { get; set; }
+	/// <summary>
+	/// Courses
+	/// </summary>
 	public DbSet<Course> Courses { get; set; }
+	/// <summary>
+	/// Course instances
+	/// </summary>
 	public DbSet<CourseInstance> CourseInstances { get; set; }
+	/// <summary>
+	/// Events
+	/// </summary>
 	public DbSet<Event> Events { get; set; }
+	/// <summary>
+	/// Event instances
+	/// </summary>
 	public DbSet<EventInstance> EventInstances { get; set; }
+	/// <summary>
+	/// Rooms
+	/// </summary>
 	public DbSet<Room> Rooms { get; set; }
+	/// <summary>
+	/// Creates a database context
+	/// </summary>
+	/// <param name="options">Options associated with this context</param>
 	public MeAnotoContext(DbContextOptions<MeAnotoContext> options) : base(options) {
 	}
-	protected override void OnModelCreating(ModelBuilder builder) {
-		base.OnModelCreating(builder);
-		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.Id).HasMaxLength(255));
-		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.NormalizedEmail).HasMaxLength(255));
-		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.UserName).HasMaxLength(255));
-		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.Email).HasMaxLength(255));
-		_ = builder.Entity<ApplicationUser>(entity => entity.Property(m => m.NormalizedUserName).HasMaxLength(255));
-		_ = builder.Entity<IdentityRole>(entity => entity.Property(m => m.Id).HasMaxLength(255));
-		_ = builder.Entity<IdentityRole>(entity => entity.Property(m => m.Name).HasMaxLength(255));
-		_ = builder.Entity<IdentityRole>(entity => entity.Property(m => m.NormalizedName).HasMaxLength(255));
-		_ = builder.Entity<IdentityUserLogin<string>>(entity => entity.Property(m => m.LoginProvider).HasMaxLength(255));
-		_ = builder.Entity<IdentityUserLogin<string>>(entity => entity.Property(m => m.ProviderKey).HasMaxLength(255));
-		_ = builder.Entity<IdentityUserLogin<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(255));
-		_ = builder.Entity<IdentityUserRole<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(255));
-		_ = builder.Entity<IdentityUserRole<string>>(entity => entity.Property(m => m.RoleId).HasMaxLength(255));
-		_ = builder.Entity<IdentityUserToken<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(255));
-		_ = builder.Entity<IdentityUserToken<string>>(entity => entity.Property(m => m.LoginProvider).HasMaxLength(255));
-		_ = builder.Entity<IdentityUserToken<string>>(entity => entity.Property(m => m.Name).HasMaxLength(255));
-		_ = builder.Entity<IdentityUserClaim<string>>(entity => entity.Property(m => m.Id).HasMaxLength(255));
-		_ = builder.Entity<IdentityUserClaim<string>>(entity => entity.Property(m => m.UserId).HasMaxLength(255));
-		_ = builder.Entity<IdentityRoleClaim<string>>(entity => entity.Property(m => m.Id).HasMaxLength(255));
-		_ = builder.Entity<IdentityRoleClaim<string>>(entity => entity.Property(m => m.RoleId).HasMaxLength(255));
-	}
+	/// <summary>
+	/// Model creation
+	/// </summary>
+	/// <param name="builder">Builder associated with this model</param>
+	protected override void OnModelCreating(ModelBuilder builder) => base.OnModelCreating(builder);
 }
