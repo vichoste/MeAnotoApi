@@ -39,4 +39,8 @@ public class Messages {
 	/// Successful enroll
 	/// </summary>
 	public const string EnrolledOk = "Inscrito con éxito";
+	/// <summary>
+	/// Successful delete
+	/// </summary>
+	public const string DeleteOk = "Eliminado con éxito";
 }

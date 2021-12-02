@@ -46,7 +46,7 @@ public class AuthenticationController : ControllerBase {
 	/// <returns>Token information in JSON format</returns>
 	[HttpPost]
 	[Route(Routes.Login)]
-	public async Task<IActionResult> Login([FromBody] LoginModel model) {
+	public async Task<ActionResult<Token>> Login([FromBody] LoginModel model) {
 		var user = await this._userManager.FindByNameAsync(model.Email);
 		if (user != null && await this._userManager.CheckPasswordAsync(user, model.Password)) {
 			var userRoles = await this._userManager.GetRolesAsync(user);
@@ -81,7 +81,7 @@ public class AuthenticationController : ControllerBase {
 	/// <returns>OK if successful in JSON format</returns>
 	[HttpPost]
 	[Route(Routes.Register + "/" + UserRoles.Administrator)]
-	public async Task<IActionResult> RegisterAdministrator([FromBody] RegisterModel model) { // TODO this thing is a vulnerability
+	public async Task<ActionResult<Token>> RegisterAdministrator([FromBody] RegisterModel model) { // TODO this thing is a vulnerability
 		var userExists = await this._userManager.FindByNameAsync(model.Email);
 		if (userExists != null) {
 			return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
@@ -112,7 +112,7 @@ public class AuthenticationController : ControllerBase {
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
 	[Route(Routes.Register + "/" + UserRoles.Manager + "/{institutionId}")]
-	public async Task<IActionResult> RegisterManager([FromBody] RegisterModel model, int institutionId) {
+	public async Task<ActionResult<Token>> RegisterManager([FromBody] RegisterModel model, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
@@ -148,7 +148,7 @@ public class AuthenticationController : ControllerBase {
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
 	[Route(Routes.Register + "/" + UserRoles.Professor + "/{institutionId}")]
-	public async Task<IActionResult> RegisterProfessor([FromBody] RegisterModel model, int institutionId) {
+	public async Task<ActionResult<Token>> RegisterProfessor([FromBody] RegisterModel model, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
@@ -184,7 +184,7 @@ public class AuthenticationController : ControllerBase {
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
 	[Route(Routes.Register + "/" + UserRoles.Attendee + "/{institutionId}")]
-	public async Task<IActionResult> RegisterAttendee([FromBody] RegisterModel model, int institutionId) {
+	public async Task<ActionResult<Token>> RegisterAttendee([FromBody] RegisterModel model, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });

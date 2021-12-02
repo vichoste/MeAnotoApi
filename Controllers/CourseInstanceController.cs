@@ -65,7 +65,7 @@ public class CourseInstanceController : ControllerBase {
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{courseId}")]
-	public async Task<ActionResult<CourseInstance>> Post(CourseInstance courseInstance, int courseId) {
+	public async Task<ActionResult<Response>> Post(CourseInstance courseInstance, int courseId) {
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		if (professor is null) {
@@ -88,7 +88,7 @@ public class CourseInstanceController : ControllerBase {
 	/// <returns>OK if enrolled successfully</returns>
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{id}/" + Routes.Enroll + "/" + UserRoles.Professor)]
-	public async Task<ActionResult<CourseInstance>> EnrollProfessor(int id) {
+	public async Task<ActionResult<Response>> EnrollProfessor(int id) {
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		if (professor is null) {
@@ -112,7 +112,7 @@ public class CourseInstanceController : ControllerBase {
 	/// <returns>OK if enrolled successfully</returns>
 	[Authorize(Roles = UserRoles.Attendee)]
 	[HttpPost("{id}/" + Routes.Enroll + "/" + UserRoles.Attendee)]
-	public async Task<ActionResult<CourseInstance>> EnrollAttendee(int id) {
+	public async Task<ActionResult<Response>> EnrollAttendee(int id) {
 		var name = this.HttpContext.User.Identity.Name;
 		var attendee = this._context.Attendees.First(p => p.UserName == name);
 		if (attendee is null) {
@@ -133,7 +133,7 @@ public class CourseInstanceController : ControllerBase {
 	/// <returns>Attendee list in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpGet("{id}/" + UserRoles.Attendee + "/" + Routes.Count)]
-	public async Task<ActionResult<CourseInstance>> GetAttendeeCount(int id) {
+	public async Task<ActionResult<Response>> GetAttendeeCount(int id) {
 		var name = this.HttpContext.User.Identity.Name;
 		var courseInstance = await this._context.CourseInstances.FindAsync(id);
 		var professor = this._context.Professors.First(p => p.UserName == name);

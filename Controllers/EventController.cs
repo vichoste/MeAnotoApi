@@ -65,7 +65,7 @@ public class EventController : ControllerBase {
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{institutionId}")]
-	public async Task<ActionResult<Event>> Post(Event @event, int institutionId) {
+	public async Task<ActionResult<Response>> Post(Event @event, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });

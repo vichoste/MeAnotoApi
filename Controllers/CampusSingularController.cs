@@ -52,7 +52,7 @@ public class CampusSingularController : ControllerBase {
 	/// <returns>OK if created successfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost("{institutionId}")]
-	public async Task<ActionResult<CampusSingular>> Post(CampusSingular campusSingular, int institutionId) {
+	public async Task<ActionResult<Response>> Post(CampusSingular campusSingular, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });

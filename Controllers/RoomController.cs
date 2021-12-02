@@ -52,7 +52,7 @@ public class RoomController : ControllerBase {
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost("{campusId}")]
-	public async Task<ActionResult<Room>> Post(Room entity, int campusId) {
+	public async Task<ActionResult<Response>> Post(Room entity, int campusId) {
 		var campusSingular = await this._context.CampusSingulars.FindAsync(campusId);
 		if (campusSingular is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
@@ -70,7 +70,7 @@ public class RoomController : ControllerBase {
 	/// <returns>OK if updated successfully</returns>
 	[Authorize(Roles = UserRoles.Manager)]
 	[HttpPatch(Routes.Update + "/{roomId}/{capacity}")]
-	public async Task<ActionResult<Room>> Update(int roomId, int capacity) {
+	public async Task<ActionResult<Response>> Update(int roomId, int capacity) {
 		var entity = await this._context.Rooms.FindAsync(roomId);
 		if (entity is not null) {
 			entity.Capacity = capacity;

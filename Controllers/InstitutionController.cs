@@ -51,7 +51,7 @@ public class InstitutionController : ControllerBase {
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
-	public async Task<ActionResult<Institution>> Post(Institution entity) {
+	public async Task<ActionResult<Response>> Post(Institution entity) {
 		_ = this._context.Institutions.Add(entity);
 		_ = await this._context.SaveChangesAsync();
 		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
