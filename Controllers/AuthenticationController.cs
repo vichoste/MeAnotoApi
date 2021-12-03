@@ -88,6 +88,9 @@ public class AuthenticationController : ControllerBase {
 			UserName = model.Email,
 			Email = model.Email,
 			SecurityStamp = Guid.NewGuid().ToString(),
+			Run = model.Run,
+			FirstName = model.FirstName,
+			LastName = model.LastName,
 		};
 		var result = await this._userManager.CreateAsync(user, model.Password);
 		if (!result.Succeeded) {
@@ -123,6 +126,9 @@ public class AuthenticationController : ControllerBase {
 			Email = model.Email,
 			Institution = institution,
 			SecurityStamp = Guid.NewGuid().ToString(),
+			Run = model.Run,
+			FirstName = model.FirstName,
+			LastName = model.LastName,
 		};
 		var result = await this._userManager.CreateAsync(user, model.Password);
 		if (!result.Succeeded) {
@@ -158,6 +164,9 @@ public class AuthenticationController : ControllerBase {
 			Email = model.Email,
 			Institution = institution,
 			SecurityStamp = Guid.NewGuid().ToString(),
+			Run = model.Run,
+			FirstName = model.FirstName,
+			LastName = model.LastName,
 		};
 		var result = await this._userManager.CreateAsync(user, model.Password);
 		if (!result.Succeeded) {
@@ -193,6 +202,9 @@ public class AuthenticationController : ControllerBase {
 			Email = model.Email,
 			Institution = institution,
 			SecurityStamp = Guid.NewGuid().ToString(),
+			Run = model.Run,
+			FirstName = model.FirstName,
+			LastName = model.LastName,
 		};
 		var result = await this._userManager.CreateAsync(user, model.Password);
 		if (!result.Succeeded) {
