@@ -31,17 +31,24 @@ public class RoomController : ControllerBase {
 	/// </summary>
 	/// <returns>List of rooms in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<Room>>> Get() => await this._context.Rooms.ToListAsync();
+	public async Task<ActionResult<IEnumerable<EntityResponse>>> Get() {
+		var rooms = await this._context.Rooms.ToListAsync();
+		var response = new List<EntityResponse>();
+		foreach (var room in rooms) {
+			response.Add(new EntityResponse { Id = room.Id, Name = room.Name });
+		}
+		return response;
+	}
 	/// <summary>
-	/// Gets a room
+	/// Gets an room
 	/// </summary>
-	/// <param name="id">Room ID</param>
-	/// <returns>Room object in JSON format</returns>
+	/// <param name="id">Event ID</param>
+	/// <returns>Event object in JSON format</returns>
 	[HttpGet("{id}")]
-	public async Task<ActionResult<Room>> Get(int id) {
-		var entity = await this._context.Rooms.FindAsync(id);
-		return entity is not null
-			? this.Ok(entity)
+	public async Task<ActionResult<EntityResponse>> Get(int id) {
+		var room = await this._context.Rooms.FindAsync(id);
+		return room is not null
+			? this.Ok(new EntityResponse { Id = room.Id, Name = room.Name })
 			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>

@@ -32,14 +32,19 @@ public class CourseInstanceController : ControllerBase {
 	/// </summary>
 	/// <returns>List of owned courses in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public ActionResult<IEnumerable<CourseInstance>> Get() {
+	public async Task<ActionResult<IEnumerable<EntityResponse>>> Get() {
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		if (professor is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
 		var myCourseInstances = this._context.CourseInstances.Where(c => c.Professors.Contains(professor));
-		return this.Ok(myCourseInstances);
+		var courseInstances = await myCourseInstances.ToListAsync();
+		var response = new List<EntityResponse>();
+		foreach (var courseInstance in courseInstances) {
+			response.Add(new EntityResponse { Id = courseInstance.Id, Name = courseInstance.Name, Owner = professor.UserName });
+		}
+		return response;
 	}
 	/// <summary>
 	/// Gets a course instance owned by a professor
@@ -47,7 +52,7 @@ public class CourseInstanceController : ControllerBase {
 	/// <param name="id">Course instance ID</param>
 	/// <returns>Course instance object in JSON format</returns>
 	[HttpGet("{id}")]
-	public async Task<ActionResult<CourseInstance>> Get(int id) {
+	public async Task<ActionResult<EntityResponse>> Get(int id) {
 		var courseInstance = await this._context.CourseInstances.FindAsync(id);
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
@@ -55,7 +60,7 @@ public class CourseInstanceController : ControllerBase {
 			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
 			: !courseInstance.Professors.Any(p => p == professor)
 			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
-			: courseInstance is not null ? this.Ok(courseInstance)
+			: courseInstance is not null ? this.Ok(new EntityResponse { Id = courseInstance.Id, Name = courseInstance.Name, Owner = professor.UserName })
 			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>

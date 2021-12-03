@@ -75,4 +75,12 @@ public class JsonPropertyNames {
 	/// User roles
 	/// </summary>
 	public const string Roles = "roles";
+	/// <summary>
+	/// ID
+	/// </summary>
+	public const string Id = "id";
+	/// <summary>
+	/// Entity owner
+	/// </summary>
+	public const string Owner = "dueño";
 }

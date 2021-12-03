@@ -32,14 +32,19 @@ public class EventController : ControllerBase {
 	/// </summary>
 	/// <returns>List of owned events in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public ActionResult<IEnumerable<Event>> Get() {
+	public async Task<ActionResult<IEnumerable<EntityResponse>>> Get() {
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		if (professor is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
-		var myEvents = this._context.Events.Where(c => c.Professor == professor);
-		return this.Ok(myEvents);
+		var myEvents = this._context.Events.Where(e => e.Professor == professor);
+		var events = await myEvents.ToListAsync();
+		var response = new List<EntityResponse>();
+		foreach (var @event in events) {
+			response.Add(new EntityResponse { Id = @event.Id, Name = @event.Name, Owner = professor.UserName });
+		}
+		return response;
 	}
 	/// <summary>
 	/// Gets an event owned by the current professor
@@ -47,7 +52,7 @@ public class EventController : ControllerBase {
 	/// <param name="id">Course ID</param>
 	/// <returns>Course object in JSON format</returns>
 	[HttpGet("{id}")]
-	public async Task<ActionResult<Event>> Get(int id) {
+	public async Task<ActionResult<EntityResponse>> Get(int id) {
 		var @event = await this._context.Events.FindAsync(id);
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
@@ -55,7 +60,7 @@ public class EventController : ControllerBase {
 			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
 			: !(@event.Professor == professor)
 			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
-			: @event is not null ? this.Ok(@event)
+			: @event is not null ? this.Ok(new EntityResponse { Id = @event.Id, Name = @event.Name, Owner = professor.UserName })
 			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>

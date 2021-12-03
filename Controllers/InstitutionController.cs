@@ -31,17 +31,24 @@ public class InstitutionController : ControllerBase {
 	/// </summary>
 	/// <returns>List of institutions in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<Institution>>> Get() => await this._context.Institutions.ToListAsync();
+	public async Task<ActionResult<IEnumerable<EntityResponse>>> Get() {
+		var institutions = await this._context.Institutions.ToListAsync();
+		var response = new List<EntityResponse>();
+		foreach (var institution in institutions) {
+			response.Add(new EntityResponse { Id = institution.Id, Name = institution.Name });
+		}
+		return response;
+	}
 	/// <summary>
 	/// Gets an institution
 	/// </summary>
 	/// <param name="id">Event ID</param>
 	/// <returns>Event object in JSON format</returns>
 	[HttpGet("{id}")]
-	public async Task<ActionResult<Institution>> Get(int id) {
-		var entity = await this._context.Institutions.FindAsync(id);
-		return entity is not null
-			? this.Ok(entity)
+	public async Task<ActionResult<EntityResponse>> Get(int id) {
+		var institution = await this._context.Institutions.FindAsync(id);
+		return institution is not null
+			? this.Ok(new EntityResponse { Id = institution.Id, Name = institution.Name })
 			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>
