@@ -47,13 +47,17 @@ public class InstitutionController : ControllerBase {
 	/// <summary>
 	/// Creates an institution
 	/// </summary>
-	/// <param name="entity">Institution</param>
+	/// <param name="institution">Institution</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
-	public async Task<ActionResult<Response>> Post(Institution entity) {
-		_ = this._context.Institutions.Add(entity);
+	public async Task<ActionResult<Institution>> Post(Institution institution) {
+		var existing = await this._context.Institutions.FirstOrDefaultAsync(i => i.Name == institution.Name);
+		if (existing is not null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+		}
+		_ = this._context.Institutions.Add(institution);
 		_ = await this._context.SaveChangesAsync();
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		return this.Ok(institution);
 	}
 }

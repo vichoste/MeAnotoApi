@@ -52,7 +52,11 @@ public class CourseController : ControllerBase {
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost("{careerId}")]
-	public async Task<ActionResult<Response>> Post(Course course, int careerId) {
+	public async Task<ActionResult<Course>> Post(Course course, int careerId) {
+		var existing = await this._context.Courses.FirstOrDefaultAsync(c => c.Name == course.Name);
+		if (existing is not null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+		}
 		var career = await this._context.Careers.FindAsync(careerId);
 		if (career is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
@@ -60,6 +64,6 @@ public class CourseController : ControllerBase {
 		course.Career = career;
 		_ = this._context.Courses.Add(course);
 		_ = await this._context.SaveChangesAsync();
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		return this.Ok(course);
 	}
 }

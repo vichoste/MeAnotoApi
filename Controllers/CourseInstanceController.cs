@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeAnotoApi.Controllers;
 /// <summary>
@@ -65,7 +66,11 @@ public class CourseInstanceController : ControllerBase {
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{courseId}")]
-	public async Task<ActionResult<Response>> Post(CourseInstance courseInstance, int courseId) {
+	public async Task<ActionResult<CourseInstance>> Post(CourseInstance courseInstance, int courseId) {
+		var existing = await this._context.CourseInstances.FirstOrDefaultAsync(c => c.Name == courseInstance.Name);
+		if (existing is not null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+		}
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		if (professor is null) {
@@ -79,7 +84,7 @@ public class CourseInstanceController : ControllerBase {
 		courseInstance.Professors.Add(professor);
 		_ = this._context.CourseInstances.Add(courseInstance);
 		_ = await this._context.SaveChangesAsync();
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		return this.Ok(courseInstance);
 	}
 	/// <summary>
 	/// Enrolls a professor into a course instance

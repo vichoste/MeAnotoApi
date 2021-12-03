@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeAnotoApi.Controllers;
 /// <summary>
@@ -65,7 +66,11 @@ public class EventController : ControllerBase {
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{institutionId}")]
-	public async Task<ActionResult<Response>> Post(Event @event, int institutionId) {
+	public async Task<ActionResult<Event>> Post(Event @event, int institutionId) {
+		var existing = await this._context.Events.FirstOrDefaultAsync(e => e.Name == @event.Name);
+		if (existing is not null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+		}
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
@@ -80,6 +85,6 @@ public class EventController : ControllerBase {
 		_ = this._context.Events.Add(@event);
 		_ = await this._context.SaveChangesAsync();
 		System.Diagnostics.Debug.WriteLine($"Prof: {professor} - {@event.Professor.UserName}");
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		return this.Ok(@event);
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using MeAnotoApi.Authentication;
@@ -55,7 +56,12 @@ public class AccountController : ControllerBase {
 	[HttpDelete("{userId}")]
 	public async Task<ActionResult<Response>> DeleteUser(string userId) {
 		var user = await this._userManager.Users.FirstAsync(u => u.Id == userId);
-		var result = await this._userManager.DeleteAsync(user);
+		IdentityResult result;
+		try { // TODO Cascade?
+			result = await this._userManager.DeleteAsync(user);
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.CascadeNotImplemented });
+		}
 		return !result.Succeeded
 			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
 			: this.Ok(new Response { Status = Statuses.Ok, Message = Messages.DeleteOk });

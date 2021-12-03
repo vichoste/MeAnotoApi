@@ -44,8 +44,7 @@ public class AuthenticationController : ControllerBase {
 	/// </summary>
 	/// <param name="model">Input form</param>
 	/// <returns>Token information in JSON format</returns>
-	[HttpPost]
-	[Route(Routes.Login)]
+	[HttpPost(Routes.Login)]
 	public async Task<ActionResult<Token>> Login([FromBody] LoginModel model) {
 		var user = await this._userManager.FindByNameAsync(model.Email);
 		if (user != null && await this._userManager.CheckPasswordAsync(user, model.Password)) {
@@ -79,8 +78,7 @@ public class AuthenticationController : ControllerBase {
 	/// </summary>
 	/// <param name="model">Input form</param>
 	/// <returns>OK if successful in JSON format</returns>
-	[HttpPost]
-	[Route(Routes.Register + "/" + UserRoles.Administrator)]
+	[HttpPost(Routes.Register + "/" + UserRoles.Administrator)]
 	public async Task<ActionResult<Token>> RegisterAdministrator([FromBody] RegisterModel model) { // TODO this thing is a vulnerability
 		var userExists = await this._userManager.FindByNameAsync(model.Email);
 		if (userExists != null) {
@@ -110,8 +108,7 @@ public class AuthenticationController : ControllerBase {
 	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if successful in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
-	[HttpPost]
-	[Route(Routes.Register + "/" + UserRoles.Manager + "/{institutionId}")]
+	[HttpPost(Routes.Register + "/" + UserRoles.Manager + "/{institutionId}")]
 	public async Task<ActionResult<Token>> RegisterManager([FromBody] RegisterModel model, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {
@@ -146,8 +143,7 @@ public class AuthenticationController : ControllerBase {
 	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if successful in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
-	[HttpPost]
-	[Route(Routes.Register + "/" + UserRoles.Professor + "/{institutionId}")]
+	[HttpPost(Routes.Register + "/" + UserRoles.Professor + "/{institutionId}")]
 	public async Task<ActionResult<Token>> RegisterProfessor([FromBody] RegisterModel model, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {
@@ -182,8 +178,7 @@ public class AuthenticationController : ControllerBase {
 	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if successful in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
-	[HttpPost]
-	[Route(Routes.Register + "/" + UserRoles.Attendee + "/{institutionId}")]
+	[HttpPost(Routes.Register + "/" + UserRoles.Attendee + "/{institutionId}")]
 	public async Task<ActionResult<Token>> RegisterAttendee([FromBody] RegisterModel model, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {

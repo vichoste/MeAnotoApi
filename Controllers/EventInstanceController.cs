@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeAnotoApi.Controllers;
 /// <summary>
@@ -67,7 +68,11 @@ public class EventInstanceController : ControllerBase {
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{eventId}/{courseInstanceId}/{roomId}")]
-	public async Task<ActionResult<Response>> Post(EventInstance eventInstance, int eventId, int courseInstanceId, int roomId) {
+	public async Task<ActionResult<EventInstance>> Post(EventInstance eventInstance, int eventId, int courseInstanceId, int roomId) {
+		var existing = await this._context.EventInstances.FirstOrDefaultAsync(e => e.Name == eventInstance.Name);
+		if (existing is not null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+		}
 		var @event = await this._context.Events.FindAsync(eventId);
 		if (@event is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
@@ -90,6 +95,6 @@ public class EventInstanceController : ControllerBase {
 		eventInstance.Room = room;
 		_ = this._context.EventInstances.Add(eventInstance);
 		_ = await this._context.SaveChangesAsync();
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		return this.Ok(eventInstance);
 	}
 }

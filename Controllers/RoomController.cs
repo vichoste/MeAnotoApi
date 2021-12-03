@@ -47,20 +47,24 @@ public class RoomController : ControllerBase {
 	/// <summary>
 	/// Creates a room
 	/// </summary>
-	/// <param name="entity">Room</param>
+	/// <param name="room">Room</param>
 	/// <param name="campusId">Campus ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost("{campusId}")]
-	public async Task<ActionResult<Response>> Post(Room entity, int campusId) {
+	public async Task<ActionResult<Room>> Post(Room room, int campusId) {
+		var existing = await this._context.Rooms.FirstOrDefaultAsync(r => r.Name == room.Name);
+		if (existing is not null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+		}
 		var campusSingular = await this._context.CampusSingulars.FindAsync(campusId);
 		if (campusSingular is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
-		entity.CampusSingular = campusSingular;
-		_ = this._context.Rooms.Add(entity);
+		room.CampusSingular = campusSingular;
+		_ = this._context.Rooms.Add(room);
 		_ = await this._context.SaveChangesAsync();
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		return this.Ok(room);
 	}
 	/// <summary>
 	/// Updates a room

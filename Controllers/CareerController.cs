@@ -52,7 +52,11 @@ public class CareerController : ControllerBase {
 	/// <returns>OK if created successfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost("{campusSingularId}")]
-	public async Task<ActionResult<Response>> Post(Career career, int campusSingularId) {
+	public async Task<ActionResult<Career>> Post(Career career, int campusSingularId) {
+		var existing = await this._context.Careers.FirstOrDefaultAsync(c => c.Name == career.Name);
+		if (existing is not null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+		}
 		var campusSingular = await this._context.CampusSingulars.FindAsync(campusSingularId);
 		if (campusSingular is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
@@ -60,6 +64,6 @@ public class CareerController : ControllerBase {
 		career.CampusSingular = campusSingular;
 		_ = this._context.Careers.Add(career);
 		_ = await this._context.SaveChangesAsync();
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		return this.Ok(career);
 	}
 }
