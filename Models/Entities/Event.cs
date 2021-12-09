@@ -13,6 +13,10 @@ public class Event : Entity {
 	/// </summary>
 	public Event() => this.EventInstances = new HashSet<EventInstance>();
 	/// <summary>
+	/// Event capacity
+	/// </summary>
+	public int Capacity { get; set; }
+	/// <summary>
 	/// Professor
 	/// </summary>
 	[JsonIgnore]

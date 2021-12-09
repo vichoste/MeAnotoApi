@@ -68,12 +68,12 @@ public class EventInstanceController : ControllerBase {
 	/// </summary>
 	/// <param name="eventInstance">Event instance</param>
 	/// <param name="eventId">Event ID</param>
-	/// <param name="courseInstanceId">Course instance ID</param>
-	/// <param name="roomId">Room ID</param>
+	///// <param name="courseInstanceId">Course instance ID</param>
+	///// <param name="roomId">Room ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{eventId}/{courseInstanceId}/{roomId}")]
-	public async Task<ActionResult<EventInstance>> Post(EventInstance eventInstance, int eventId, int courseInstanceId, int roomId) {
+	public async Task<ActionResult<EventInstance>> Post(EventInstance eventInstance, int eventId) {
 		var existing = await this._context.EventInstances.FirstOrDefaultAsync(e => e.Name == eventInstance.Name);
 		if (existing is not null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
@@ -90,16 +90,40 @@ public class EventInstanceController : ControllerBase {
 		if (@event.Professor != professor) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
-		var courseInstance = await this._context.CourseInstances.FindAsync(courseInstanceId);
-		var room = await this._context.Rooms.FindAsync(roomId);
-		if (courseInstance is null || room is null) {
-			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
-		}
+		//var courseInstance = await this._context.CourseInstances.FindAsync(courseInstanceId);
+		//var room = await this._context.Rooms.FindAsync(roomId);
+		//if (courseInstance is null || room is null) {
+		//	return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		//}
 		eventInstance.Event = @event;
-		eventInstance.CourseInstance = courseInstance;
-		eventInstance.Room = room;
+		//eventInstance.CourseInstance = courseInstance;
+		//eventInstance.Room = room;
 		_ = this._context.EventInstances.Add(eventInstance);
 		_ = await this._context.SaveChangesAsync();
 		return this.Ok(eventInstance);
+	}
+	/// <summary>
+	/// Creates an event instance
+	/// </summary>
+	/// <param name="eventInstance">Event instance</param>
+	/// <param name="eventId">Event ID</param>
+	///// <param name="courseInstanceId">Course instance ID</param>
+	///// <param name="roomId">Room ID</param>
+	/// <returns>OK if sucessfully in JSON format</returns>
+	[Authorize(Roles = UserRoles.Professor)]
+	[HttpGet("{eventInstanceId}/" + UserRoles.Attendee + "/" + Routes.Count)]
+	public async Task<ActionResult<Response>> GetAssistantCount(int eventInstanceId) {
+		var eventInstance = await this._context.EventInstances.FindAsync(eventInstanceId);
+		if (eventInstance is null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		}
+		var name = this.HttpContext.User.Identity.Name;
+		var professor = this._context.Professors.First(p => p.UserName == name);
+		if (professor is null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		}
+		return eventInstance.Event.Professor != professor
+			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
+			: this.Ok(new Response { Status = Statuses.Ok, Message = eventInstance.Attendees.Count.ToString() });
 	}
 }

@@ -21,22 +21,22 @@ public class MeAnotoContext : IdentityDbContext<ApplicationUser> {
 	/// Institutions
 	/// </summary>
 	public DbSet<Institution> Institutions { get; set; }
-	/// <summary>
-	/// Campuses
-	/// </summary>
-	public DbSet<CampusSingular> CampusSingulars { get; set; }
-	/// <summary>
-	/// Careers
-	/// </summary>
-	public DbSet<Career> Careers { get; set; }
-	/// <summary>
-	/// Courses
-	/// </summary>
-	public DbSet<Course> Courses { get; set; }
-	/// <summary>
-	/// Course instances
-	/// </summary>
-	public DbSet<CourseInstance> CourseInstances { get; set; }
+	///// <summary>
+	///// Campuses
+	///// </summary>
+	//public DbSet<CampusSingular> CampusSingulars { get; set; }
+	///// <summary>
+	///// Careers
+	///// </summary>
+	//public DbSet<Career> Careers { get; set; }
+	///// <summary>
+	///// Courses
+	///// </summary>
+	//public DbSet<Course> Courses { get; set; }
+	///// <summary>
+	///// Course instances
+	///// </summary>
+	//public DbSet<CourseInstance> CourseInstances { get; set; }
 	/// <summary>
 	/// Events
 	/// </summary>
@@ -45,10 +45,10 @@ public class MeAnotoContext : IdentityDbContext<ApplicationUser> {
 	/// Event instances
 	/// </summary>
 	public DbSet<EventInstance> EventInstances { get; set; }
-	/// <summary>
-	/// Rooms
-	/// </summary>
-	public DbSet<Room> Rooms { get; set; }
+	///// <summary>
+	///// Rooms
+	///// </summary>
+	//public DbSet<Room> Rooms { get; set; }
 	/// <summary>
 	/// Creates a database context
 	/// </summary>

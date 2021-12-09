@@ -6,11 +6,11 @@ namespace MeAnotoApi.Models.Entities;
 /// Institution
 /// </summary>
 public class Institution : Entity {
-	/// <summary>
-	/// Campuses
-	/// </summary>
-	[JsonIgnore]
-	public ICollection<CampusSingular> CampusSingulars { get; set; }
+	///// <summary>
+	///// Campuses
+	///// </summary>
+	//[JsonIgnore]
+	//public ICollection<CampusSingular> CampusSingulars { get; set; }
 	/// <summary>
 	/// Events
 	/// </summary>

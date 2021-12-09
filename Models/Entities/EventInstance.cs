@@ -19,16 +19,16 @@ public class EventInstance : Entity {
 	/// </summary>
 	[JsonIgnore]
 	public Event Event { get; set; }
-	/// <summary>
-	/// Course instance
-	/// </summary>
-	[JsonIgnore]
-	public CourseInstance CourseInstance { get; set; }
-	/// <summary>
-	/// Room
-	/// </summary>
-	[JsonIgnore]
-	public Room Room { get; set; }
+	///// <summary>
+	///// Course instance
+	///// </summary>
+	//[JsonIgnore]
+	//public CourseInstance CourseInstance { get; set; }
+	///// <summary>
+	///// Room
+	///// </summary>
+	//[JsonIgnore]
+	//public Room Room { get; set; }
 	/// <summary>
 	/// Attendees
 	/// </summary>

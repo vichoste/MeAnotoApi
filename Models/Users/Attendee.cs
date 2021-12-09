@@ -11,18 +11,15 @@ public class Attendee : ApplicationUser {
 	/// <summary>
 	/// Creates an attendee
 	/// </summary>
-	public Attendee() {
-		this.EventInstances = new HashSet<EventInstance>();
-		this.CourseInstances = new HashSet<CourseInstance>();
-	}
+	public Attendee() => this.EventInstances = new HashSet<EventInstance>();//this.CourseInstances = new HashSet<CourseInstance>();
 	/// <summary>
 	/// Event instances
 	/// </summary>
 	[JsonIgnore]
 	public ICollection<EventInstance> EventInstances { get; set; }
-	/// <summary>
-	/// Course instances
-	/// </summary>
-	[JsonIgnore]
-	public ICollection<CourseInstance> CourseInstances { get; set; }
+	///// <summary>
+	///// Course instances
+	///// </summary>
+	//[JsonIgnore]
+	//public ICollection<CourseInstance> CourseInstances { get; set; }
 }

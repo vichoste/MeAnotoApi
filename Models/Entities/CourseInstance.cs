@@ -1,55 +1,55 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿//using System.Collections.Generic;
+//using System.Text.Json.Serialization;
 
-using MeAnotoApi.Authentication;
-using MeAnotoApi.Models.Users;
+//using MeAnotoApi.Authentication;
+//using MeAnotoApi.Models.Users;
 
-namespace MeAnotoApi.Models.Entities;
-/// <summary>
-/// Course instance
-/// </summary>
-public class CourseInstance : Entity {
-	/// <summary>
-	/// Creates a course instance
-	/// </summary>
-	public CourseInstance() {
-		this.EventInstances = new HashSet<EventInstance>();
-		this.Attendees = new HashSet<Attendee>();
-		this.Professors = new HashSet<Professor>();
-	}
-	/// <summary>
-	/// Course
-	/// </summary>
-	[JsonIgnore]
-	public Course Course { get; set; }
-	/// <summary>
-	/// Year
-	/// </summary>
-	[JsonPropertyName(JsonPropertyNames.Year)]
-	public string Year { get; set; }
-	/// <summary>
-	/// Semester
-	/// </summary>
-	[JsonPropertyName(JsonPropertyNames.Semester)]
-	public string Semester { get; set; }
-	/// <summary>
-	/// Section
-	/// </summary>
-	[JsonPropertyName(JsonPropertyNames.Section)]
-	public string Section { get; set; }
-	/// <summary>
-	/// Event instances
-	/// </summary>
-	[JsonIgnore]
-	public ICollection<EventInstance> EventInstances { get; set; }
-	/// <summary>
-	/// Attendees
-	/// </summary>
-	[JsonIgnore]
-	public ICollection<Attendee> Attendees { get; set; }
-	/// <summary>
-	/// Professors
-	/// </summary>
-	[JsonIgnore]
-	public ICollection<Professor> Professors { get; set; }
-}
+//namespace MeAnotoApi.Models.Entities;
+///// <summary>
+///// Course instance
+///// </summary>
+//public class CourseInstance : Entity {
+//	/// <summary>
+//	/// Creates a course instance
+//	/// </summary>
+//	public CourseInstance() {
+//		this.EventInstances = new HashSet<EventInstance>();
+//		this.Attendees = new HashSet<Attendee>();
+//		this.Professors = new HashSet<Professor>();
+//	}
+//	/// <summary>
+//	/// Course
+//	/// </summary>
+//	[JsonIgnore]
+//	public Course Course { get; set; }
+//	/// <summary>
+//	/// Year
+//	/// </summary>
+//	[JsonPropertyName(JsonPropertyNames.Year)]
+//	public string Year { get; set; }
+//	/// <summary>
+//	/// Semester
+//	/// </summary>
+//	[JsonPropertyName(JsonPropertyNames.Semester)]
+//	public string Semester { get; set; }
+//	/// <summary>
+//	/// Section
+//	/// </summary>
+//	[JsonPropertyName(JsonPropertyNames.Section)]
+//	public string Section { get; set; }
+//	/// <summary>
+//	/// Event instances
+//	/// </summary>
+//	[JsonIgnore]
+//	public ICollection<EventInstance> EventInstances { get; set; }
+//	/// <summary>
+//	/// Attendees
+//	/// </summary>
+//	[JsonIgnore]
+//	public ICollection<Attendee> Attendees { get; set; }
+//	/// <summary>
+//	/// Professors
+//	/// </summary>
+//	[JsonIgnore]
+//	public ICollection<Professor> Professors { get; set; }
+//}
