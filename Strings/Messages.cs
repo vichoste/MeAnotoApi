@@ -50,5 +50,5 @@ public class Messages {
 	/// <summary>
 	/// Cascade not implemented
 	/// </summary>
-	public const string CascadeNotImplemented = "Eliminación en cascada no implementada. Vicho pls fix";
+	public const string InvalidOperationError = "Se intentó realizar una operación inválida";
 }

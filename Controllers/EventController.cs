@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-using MeAnotoApi.Information;
 using MeAnotoApi.Contexts;
+using MeAnotoApi.Information;
 using MeAnotoApi.Models.Entities;
 using MeAnotoApi.Strings;
 
@@ -17,10 +17,7 @@ namespace MeAnotoApi.Controllers;
 /// <summary>
 /// Controller for event
 /// </summary>
-[ApiController]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Professor)]
-[EnableCors("FrontendCors")]
-[Route(Routes.Api + "/" + Entities.Event)]
+[ApiController, Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Professor), EnableCors("FrontendCors"), Route(Routes.Api + "/" + Entities.Event)]
 public class EventController : ControllerBase {
 	private readonly MeAnotoContext _context;
 	/// <summary>

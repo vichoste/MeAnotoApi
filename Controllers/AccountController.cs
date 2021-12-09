@@ -23,10 +23,7 @@ namespace MeAnotoApi.Controllers;
 /// <summary>
 /// Controller for account
 /// </summary>
-[ApiController]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Administrator)]
-[EnableCors("FrontendCors")]
-[Route(Routes.Api + "/" + Routes.Account)]
+[ApiController, Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Administrator), EnableCors("FrontendCors"), Route(Routes.Api + "/" + Routes.Account)]
 public class AccountController : ControllerBase {
 	private readonly UserManager<ApplicationUser> _userManager;
 	private readonly RoleManager<IdentityRole> _roleManager;
@@ -52,16 +49,16 @@ public class AccountController : ControllerBase {
 	/// <returns>OK if deleted successfully in JSON format</returns>
 	[HttpDelete("{userId}")]
 	public async Task<ActionResult<Response>> DeleteApplicationUser(string userId) {
-		var user = await this._userManager.Users.FirstAsync(u => u.Id == userId);
-		IdentityResult result;
 		try { // TODO Cascade?
+			var user = await this._userManager.Users.FirstAsync(u => u.Id == userId);
+			IdentityResult result;
 			result = await this._userManager.DeleteAsync(user);
+			return !result.Succeeded
+				? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
+				: this.Ok(new Response { Status = Statuses.Ok, Message = Messages.DeleteOk });
 		} catch (Exception) {
-			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.CascadeNotImplemented });
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
-		return !result.Succeeded
-			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
-			: this.Ok(new Response { Status = Statuses.Ok, Message = Messages.DeleteOk });
 	}
 	/// <summary>
 	/// Gets all the users
@@ -86,7 +83,7 @@ public class AccountController : ControllerBase {
 	/// </summary>
 	/// <param name="model">Input form</param>
 	/// <returns>Token information in JSON format</returns>
-	[HttpGet(Routes.Login)]
+	[AllowAnonymous, HttpGet(Routes.Login)]
 	public async Task<ActionResult<Token>> GetLoginToken([FromBody] LoginModel model) {
 		var user = await this._userManager.FindByNameAsync(model.Email);
 		if (user != null && await this._userManager.CheckPasswordAsync(user, model.Password)) {
@@ -120,7 +117,7 @@ public class AccountController : ControllerBase {
 	/// </summary>
 	/// <param name="model">Input form</param>
 	/// <returns>OK if successful in JSON format</returns>
-	[HttpPost(Routes.Register + "/" + UserRoles.Administrator)]
+	[AllowAnonymous, HttpPost(Routes.Register + "/" + UserRoles.Administrator)]
 	public async Task<ActionResult<Token>> RegisterAdministrator([FromBody] RegisterModel model) { // TODO this thing is a vulnerability
 		var userExists = await this._userManager.FindByNameAsync(model.Email);
 		if (userExists != null) {
@@ -152,7 +149,6 @@ public class AccountController : ControllerBase {
 	/// <param name="model">Input form</param>
 	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if successful in JSON format</returns>
-	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost(Routes.Register + "/" + UserRoles.Manager + "/{institutionId}")]
 	public async Task<ActionResult<Token>> RegisterManager([FromBody] RegisterModel model, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
@@ -190,7 +186,6 @@ public class AccountController : ControllerBase {
 	/// <param name="model">Input form</param>
 	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if successful in JSON format</returns>
-	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost(Routes.Register + "/" + UserRoles.Professor + "/{institutionId}")]
 	public async Task<ActionResult<Token>> RegisterProfessor([FromBody] RegisterModel model, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);
@@ -228,7 +223,6 @@ public class AccountController : ControllerBase {
 	/// <param name="model">Input form</param>
 	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if successful in JSON format</returns>
-	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost(Routes.Register + "/" + UserRoles.Attendee + "/{institutionId}")]
 	public async Task<ActionResult<Token>> RegisterAttendee([FromBody] RegisterModel model, int institutionId) {
 		var institution = await this._context.Institutions.FindAsync(institutionId);

@@ -23,4 +23,8 @@ public class Statuses {
 	/// Internal server error
 	/// </summary>
 	public const string InternalServerError = "Problema interno";
+	/// <summary>
+	/// Invalid operation error
+	/// </summary>
+	public const string InvalidOperationError = "Operación inválida";
 }

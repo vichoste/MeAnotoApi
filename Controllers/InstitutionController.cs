@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using MeAnotoApi.Information;
 using MeAnotoApi.Contexts;
+using MeAnotoApi.Information;
 using MeAnotoApi.Models.Entities;
 using MeAnotoApi.Strings;
 
@@ -16,10 +16,7 @@ namespace MeAnotoApi.Controllers;
 /// <summary>
 /// Controller for institution
 /// </summary>
-[ApiController]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Administrator)]
-[EnableCors("FrontendCors")]
-[Route(Routes.Api + "/" + Entities.Institution)]
+[ApiController, Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Administrator), EnableCors("FrontendCors"), Route(Routes.Api + "/" + Entities.Institution)]
 public class InstitutionController : ControllerBase {
 	private readonly MeAnotoContext _context;
 	/// <summary>
