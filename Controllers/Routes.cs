@@ -35,4 +35,8 @@ public class Routes {
 	/// Enroll
 	/// </summary>
 	public const string Enroll = "inscribir";
+	/// <summary>
+	/// Account
+	/// </summary>
+	public const string Account = "cuenta";
 }

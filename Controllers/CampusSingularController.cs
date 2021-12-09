@@ -27,21 +27,28 @@ public class CampusSingularController : ControllerBase {
 	/// <param name="context">Database context</param>
 	public CampusSingularController(MeAnotoContext context) => this._context = context;
 	/// <summary>
-	/// Gets all the campuses
+	/// Gets all the campusSingulars
 	/// </summary>
-	/// <returns>List of all the campuses in JSON format</returns>
+	/// <returns>List of campusSingulars in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<CampusSingular>>> Get() => await this._context.CampusSingulars.ToListAsync();
+	public async Task<ActionResult<IEnumerable<EntityResponse>>> Get() {
+		var campusSingulars = await this._context.CampusSingulars.ToListAsync();
+		var response = new List<EntityResponse>();
+		foreach (var campusSingular in campusSingulars) {
+			response.Add(new EntityResponse { Id = campusSingular.Id, Name = campusSingular.Name });
+		}
+		return response;
+	}
 	/// <summary>
-	/// Gets a campus
+	/// Gets an campusSingular
 	/// </summary>
-	/// <param name="id">Campus ID</param>
-	/// <returns>Campus object in JSON format</returns>
+	/// <param name="id">Event ID</param>
+	/// <returns>Event object in JSON format</returns>
 	[HttpGet("{id}")]
-	public async Task<ActionResult<CampusSingular>> Get(int id) {
+	public async Task<ActionResult<EntityResponse>> Get(int id) {
 		var campusSingular = await this._context.CampusSingulars.FindAsync(id);
 		return campusSingular is not null
-			? this.Ok(campusSingular)
+			? this.Ok(new EntityResponse { Id = campusSingular.Id, Name = campusSingular.Name })
 			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>
@@ -53,6 +60,10 @@ public class CampusSingularController : ControllerBase {
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost("{institutionId}")]
 	public async Task<ActionResult<CampusSingular>> Post(CampusSingular campusSingular, int institutionId) {
+		var existing = await this._context.CampusSingulars.FirstOrDefaultAsync(c => c.Name == campusSingular.Name);
+		if (existing is not null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+		}
 		var institution = await this._context.Institutions.FindAsync(institutionId);
 		if (institution is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
@@ -60,6 +71,6 @@ public class CampusSingularController : ControllerBase {
 		campusSingular.Institution = institution;
 		_ = this._context.CampusSingulars.Add(campusSingular);
 		_ = await this._context.SaveChangesAsync();
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		return this.Ok(campusSingular);
 	}
 }

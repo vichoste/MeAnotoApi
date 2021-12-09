@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeAnotoApi.Controllers;
 /// <summary>
@@ -31,14 +32,19 @@ public class EventInstanceController : ControllerBase {
 	/// </summary>
 	/// <returns>List of owned events in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public ActionResult<IEnumerable<EventInstance>> Get() {
+	public async Task<ActionResult<IEnumerable<EntityResponse>>> Get() {
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		if (professor is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
-		var myEvents = this._context.EventInstances.Where(e => e.Event.Professor == professor);
-		return this.Ok(myEvents);
+		var myEventInstances = this._context.EventInstances.Where(e => e.Event.Professor == professor);
+		var eventInstances = await myEventInstances.ToListAsync();
+		var response = new List<EntityResponse>();
+		foreach (var eventInstance in eventInstances) {
+			response.Add(new EntityResponse { Id = eventInstance.Id, Name = eventInstance.Name, Owner = professor.UserName });
+		}
+		return response;
 	}
 	/// <summary>
 	/// Gets an event instance owned by the current professor
@@ -46,7 +52,7 @@ public class EventInstanceController : ControllerBase {
 	/// <param name="id">Course ID</param>
 	/// <returns>Course object in JSON format</returns>
 	[HttpGet("{id}")]
-	public async Task<ActionResult<EventInstance>> Get(int id) {
+	public async Task<ActionResult<EntityResponse>> Get(int id) {
 		var eventInstance = await this._context.EventInstances.FindAsync(id);
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
@@ -54,7 +60,7 @@ public class EventInstanceController : ControllerBase {
 			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
 			: !(eventInstance.Event.Professor == professor)
 			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
-			: eventInstance is not null ? this.Ok(eventInstance)
+			: eventInstance is not null ? this.Ok(new EntityResponse { Id = eventInstance.Id, Name = eventInstance.Name, Owner = professor.UserName })
 			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>
@@ -68,6 +74,10 @@ public class EventInstanceController : ControllerBase {
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{eventId}/{courseInstanceId}/{roomId}")]
 	public async Task<ActionResult<EventInstance>> Post(EventInstance eventInstance, int eventId, int courseInstanceId, int roomId) {
+		var existing = await this._context.EventInstances.FirstOrDefaultAsync(e => e.Name == eventInstance.Name);
+		if (existing is not null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+		}
 		var @event = await this._context.Events.FindAsync(eventId);
 		if (@event is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
@@ -90,6 +100,6 @@ public class EventInstanceController : ControllerBase {
 		eventInstance.Room = room;
 		_ = this._context.EventInstances.Add(eventInstance);
 		_ = await this._context.SaveChangesAsync();
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		return this.Ok(eventInstance);
 	}
 }

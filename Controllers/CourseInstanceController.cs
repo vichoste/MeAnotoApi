@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeAnotoApi.Controllers;
 /// <summary>
@@ -31,14 +32,19 @@ public class CourseInstanceController : ControllerBase {
 	/// </summary>
 	/// <returns>List of owned courses in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public ActionResult<IEnumerable<CourseInstance>> Get() {
+	public async Task<ActionResult<IEnumerable<EntityResponse>>> Get() {
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		if (professor is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
 		var myCourseInstances = this._context.CourseInstances.Where(c => c.Professors.Contains(professor));
-		return this.Ok(myCourseInstances);
+		var courseInstances = await myCourseInstances.ToListAsync();
+		var response = new List<EntityResponse>();
+		foreach (var courseInstance in courseInstances) {
+			response.Add(new EntityResponse { Id = courseInstance.Id, Name = courseInstance.Name, Owner = professor.UserName });
+		}
+		return response;
 	}
 	/// <summary>
 	/// Gets a course instance owned by a professor
@@ -46,7 +52,7 @@ public class CourseInstanceController : ControllerBase {
 	/// <param name="id">Course instance ID</param>
 	/// <returns>Course instance object in JSON format</returns>
 	[HttpGet("{id}")]
-	public async Task<ActionResult<CourseInstance>> Get(int id) {
+	public async Task<ActionResult<EntityResponse>> Get(int id) {
 		var courseInstance = await this._context.CourseInstances.FindAsync(id);
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
@@ -54,7 +60,7 @@ public class CourseInstanceController : ControllerBase {
 			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
 			: !courseInstance.Professors.Any(p => p == professor)
 			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
-			: courseInstance is not null ? this.Ok(courseInstance)
+			: courseInstance is not null ? this.Ok(new EntityResponse { Id = courseInstance.Id, Name = courseInstance.Name, Owner = professor.UserName })
 			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>
@@ -66,6 +72,10 @@ public class CourseInstanceController : ControllerBase {
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{courseId}")]
 	public async Task<ActionResult<CourseInstance>> Post(CourseInstance courseInstance, int courseId) {
+		var existing = await this._context.CourseInstances.FirstOrDefaultAsync(c => c.Name == courseInstance.Name);
+		if (existing is not null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+		}
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		if (professor is null) {
@@ -79,7 +89,7 @@ public class CourseInstanceController : ControllerBase {
 		courseInstance.Professors.Add(professor);
 		_ = this._context.CourseInstances.Add(courseInstance);
 		_ = await this._context.SaveChangesAsync();
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		return this.Ok(courseInstance);
 	}
 	/// <summary>
 	/// Enrolls a professor into a course instance
@@ -88,7 +98,7 @@ public class CourseInstanceController : ControllerBase {
 	/// <returns>OK if enrolled successfully</returns>
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{id}/" + Routes.Enroll + "/" + UserRoles.Professor)]
-	public async Task<ActionResult<CourseInstance>> EnrollProfessor(int id) {
+	public async Task<ActionResult<Response>> EnrollProfessor(int id) {
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		if (professor is null) {
@@ -112,7 +122,7 @@ public class CourseInstanceController : ControllerBase {
 	/// <returns>OK if enrolled successfully</returns>
 	[Authorize(Roles = UserRoles.Attendee)]
 	[HttpPost("{id}/" + Routes.Enroll + "/" + UserRoles.Attendee)]
-	public async Task<ActionResult<CourseInstance>> EnrollAttendee(int id) {
+	public async Task<ActionResult<Response>> EnrollAttendee(int id) {
 		var name = this.HttpContext.User.Identity.Name;
 		var attendee = this._context.Attendees.First(p => p.UserName == name);
 		if (attendee is null) {
@@ -133,7 +143,7 @@ public class CourseInstanceController : ControllerBase {
 	/// <returns>Attendee list in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor)]
 	[HttpGet("{id}/" + UserRoles.Attendee + "/" + Routes.Count)]
-	public async Task<ActionResult<CourseInstance>> GetAttendeeCount(int id) {
+	public async Task<ActionResult<Response>> GetAttendeeCount(int id) {
 		var name = this.HttpContext.User.Identity.Name;
 		var courseInstance = await this._context.CourseInstances.FindAsync(id);
 		var professor = this._context.Professors.First(p => p.UserName == name);

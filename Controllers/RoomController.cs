@@ -31,36 +31,47 @@ public class RoomController : ControllerBase {
 	/// </summary>
 	/// <returns>List of rooms in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<Room>>> Get() => await this._context.Rooms.ToListAsync();
+	public async Task<ActionResult<IEnumerable<EntityResponse>>> Get() {
+		var rooms = await this._context.Rooms.ToListAsync();
+		var response = new List<EntityResponse>();
+		foreach (var room in rooms) {
+			response.Add(new EntityResponse { Id = room.Id, Name = room.Name });
+		}
+		return response;
+	}
 	/// <summary>
-	/// Gets a room
+	/// Gets an room
 	/// </summary>
-	/// <param name="id">Room ID</param>
-	/// <returns>Room object in JSON format</returns>
+	/// <param name="id">Event ID</param>
+	/// <returns>Event object in JSON format</returns>
 	[HttpGet("{id}")]
-	public async Task<ActionResult<Room>> Get(int id) {
-		var entity = await this._context.Rooms.FindAsync(id);
-		return entity is not null
-			? this.Ok(entity)
+	public async Task<ActionResult<EntityResponse>> Get(int id) {
+		var room = await this._context.Rooms.FindAsync(id);
+		return room is not null
+			? this.Ok(new EntityResponse { Id = room.Id, Name = room.Name })
 			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
 	}
 	/// <summary>
 	/// Creates a room
 	/// </summary>
-	/// <param name="entity">Room</param>
+	/// <param name="room">Room</param>
 	/// <param name="campusId">Campus ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost("{campusId}")]
-	public async Task<ActionResult<Room>> Post(Room entity, int campusId) {
+	public async Task<ActionResult<Room>> Post(Room room, int campusId) {
+		var existing = await this._context.Rooms.FirstOrDefaultAsync(r => r.Name == room.Name);
+		if (existing is not null) {
+			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+		}
 		var campusSingular = await this._context.CampusSingulars.FindAsync(campusId);
 		if (campusSingular is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
-		entity.CampusSingular = campusSingular;
-		_ = this._context.Rooms.Add(entity);
+		room.CampusSingular = campusSingular;
+		_ = this._context.Rooms.Add(room);
 		_ = await this._context.SaveChangesAsync();
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		return this.Ok(room);
 	}
 	/// <summary>
 	/// Updates a room
@@ -70,7 +81,7 @@ public class RoomController : ControllerBase {
 	/// <returns>OK if updated successfully</returns>
 	[Authorize(Roles = UserRoles.Manager)]
 	[HttpPatch(Routes.Update + "/{roomId}/{capacity}")]
-	public async Task<ActionResult<Room>> Update(int roomId, int capacity) {
+	public async Task<ActionResult<Response>> Update(int roomId, int capacity) {
 		var entity = await this._context.Rooms.FindAsync(roomId);
 		if (entity is not null) {
 			entity.Capacity = capacity;

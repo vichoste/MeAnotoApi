@@ -39,4 +39,16 @@ public class Messages {
 	/// Successful enroll
 	/// </summary>
 	public const string EnrolledOk = "Inscrito con éxito";
+	/// <summary>
+	/// Successful delete
+	/// </summary>
+	public const string DeleteOk = "Eliminado con éxito";
+	/// <summary>
+	/// Duplication error
+	/// </summary>
+	public const string DuplicatedError = "No se permiten duplicados";
+	/// <summary>
+	/// Cascade not implemented
+	/// </summary>
+	public const string CascadeNotImplemented = "Eliminación en cascada no implementada. Vicho pls fix";
 }
