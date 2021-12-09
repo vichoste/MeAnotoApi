@@ -16,7 +16,7 @@ namespace MeAnotoApi.Controllers;
 /// Controller for institution
 /// </summary>
 [ApiController]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Administrator)]
 [EnableCors("FrontendCors")]
 [Route(Routes.Api + "/" + Entities.Institution)]
 public class InstitutionController : ControllerBase {
@@ -56,7 +56,6 @@ public class InstitutionController : ControllerBase {
 	/// </summary>
 	/// <param name="institution">Institution</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
-	[Authorize(Roles = UserRoles.Administrator)]
 	[HttpPost]
 	public async Task<ActionResult<Institution>> Post(Institution institution) {
 		var existing = await this._context.Institutions.FirstOrDefaultAsync(i => i.Name == institution.Name);

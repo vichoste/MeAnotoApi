@@ -17,7 +17,7 @@ namespace MeAnotoApi.Controllers;
 /// Controller for event
 /// </summary>
 [ApiController]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Professor)]
 [EnableCors("FrontendCors")]
 [Route(Routes.Api + "/" + Entities.Event)]
 public class EventController : ControllerBase {
@@ -69,7 +69,6 @@ public class EventController : ControllerBase {
 	/// <param name="event">Event</param>
 	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
-	[Authorize(Roles = UserRoles.Professor)]
 	[HttpPost("{institutionId}")]
 	public async Task<ActionResult<Event>> Post(Event @event, int institutionId) {
 		var existing = await this._context.Events.FirstOrDefaultAsync(e => e.Name == @event.Name);

@@ -17,7 +17,7 @@ namespace MeAnotoApi.Controllers;
 /// Controller for event instance
 /// </summary>
 [ApiController]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Professor)]
 [EnableCors("FrontendCors")]
 [Route(Routes.Api + "/" + Entities.EventInstance)]
 public class EventInstanceController : ControllerBase {
@@ -71,8 +71,7 @@ public class EventInstanceController : ControllerBase {
 	///// <param name="courseInstanceId">Course instance ID</param>
 	///// <param name="roomId">Room ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
-	[Authorize(Roles = UserRoles.Professor)]
-	[HttpPost("{eventId}/{courseInstanceId}/{roomId}")]
+	[HttpPost("{eventId}")]
 	public async Task<ActionResult<EventInstance>> Post(EventInstance eventInstance, int eventId) {
 		var existing = await this._context.EventInstances.FirstOrDefaultAsync(e => e.Name == eventInstance.Name);
 		if (existing is not null) {
@@ -110,7 +109,6 @@ public class EventInstanceController : ControllerBase {
 	///// <param name="courseInstanceId">Course instance ID</param>
 	///// <param name="roomId">Room ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
-	[Authorize(Roles = UserRoles.Professor)]
 	[HttpGet("{eventInstanceId}/" + UserRoles.Attendee + "/" + Routes.Count)]
 	public async Task<ActionResult<Response>> GetAssistantCount(int eventInstanceId) {
 		var eventInstance = await this._context.EventInstances.FindAsync(eventInstanceId);
@@ -119,10 +117,9 @@ public class EventInstanceController : ControllerBase {
 		}
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
-		if (professor is null) {
-			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
-		}
-		return eventInstance.Event.Professor != professor
+		return professor is null
+			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
+			: eventInstance.Event.Professor != professor
 			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
 			: this.Ok(new Response { Status = Statuses.Ok, Message = eventInstance.Attendees.Count.ToString() });
 	}
