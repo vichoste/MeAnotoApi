@@ -2,9 +2,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-using MeAnotoApi.Authentication;
+using MeAnotoApi.Information;
 using MeAnotoApi.Contexts;
 using MeAnotoApi.Models.Entities;
+using MeAnotoApi.Strings;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -32,7 +33,7 @@ public class EventController : ControllerBase {
 	/// </summary>
 	/// <returns>List of owned events in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<EntityResponse>>> Get() {
+	public async Task<ActionResult<IEnumerable<EntityResponse>>> GetEvent() {
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		if (professor is null) {
@@ -49,11 +50,11 @@ public class EventController : ControllerBase {
 	/// <summary>
 	/// Gets an event owned by the current professor
 	/// </summary>
-	/// <param name="id">Course ID</param>
+	/// <param name="eventId">Course ID</param>
 	/// <returns>Course object in JSON format</returns>
-	[HttpGet("{id}")]
-	public async Task<ActionResult<EntityResponse>> Get(int id) {
-		var @event = await this._context.Events.FindAsync(id);
+	[HttpGet("{eventId}")]
+	public async Task<ActionResult<EntityResponse>> GetEvent(int eventId) {
+		var @event = await this._context.Events.FindAsync(eventId);
 		var name = this.HttpContext.User.Identity.Name;
 		var professor = this._context.Professors.First(p => p.UserName == name);
 		return professor is null
@@ -67,15 +68,15 @@ public class EventController : ControllerBase {
 	/// Creates an event
 	/// </summary>
 	/// <param name="event">Event</param>
-	/// <param name="institutionId">Institution ID</param>
+	/// <param name="eventId">Institution ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
-	[HttpPost("{institutionId}")]
-	public async Task<ActionResult<Event>> Post(Event @event, int institutionId) {
+	[HttpPost("{eventId}")]
+	public async Task<ActionResult<Event>> CreateEvent(Event @event, int eventId) {
 		var existing = await this._context.Events.FirstOrDefaultAsync(e => e.Name == @event.Name);
 		if (existing is not null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
 		}
-		var institution = await this._context.Institutions.FindAsync(institutionId);
+		var institution = await this._context.Institutions.FindAsync(eventId);
 		if (institution is null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 		}
@@ -88,7 +89,6 @@ public class EventController : ControllerBase {
 		@event.Professor = professor;
 		_ = this._context.Events.Add(@event);
 		_ = await this._context.SaveChangesAsync();
-		System.Diagnostics.Debug.WriteLine($"Prof: {professor} - {@event.Professor.UserName}");
 		return this.Ok(@event);
 	}
 }

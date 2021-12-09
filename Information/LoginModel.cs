@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace MeAnotoApi.Authentication;
+namespace MeAnotoApi.Information;
 /// <summary>
 /// Model for login form
 /// </summary>

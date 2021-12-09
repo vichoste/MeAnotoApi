@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace MeAnotoApi.Authentication;
+namespace MeAnotoApi.Information;
 /// <summary>
 /// Token JSON response when an user logs in successfully
 /// </summary>

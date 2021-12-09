@@ -1,4 +1,4 @@
-﻿namespace MeAnotoApi.Authentication;
+﻿namespace MeAnotoApi.Information;
 /// <summary>
 /// List of JSON property names
 /// </summary>

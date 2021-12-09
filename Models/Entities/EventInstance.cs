@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-using MeAnotoApi.Authentication;
+using MeAnotoApi.Information;
 using MeAnotoApi.Models.Users;
 
 namespace MeAnotoApi.Models.Entities;

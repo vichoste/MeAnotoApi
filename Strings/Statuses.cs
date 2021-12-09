@@ -1,4 +1,4 @@
-﻿namespace MeAnotoApi.Controllers;
+﻿namespace MeAnotoApi.Strings;
 /// <summary>
 /// Statuses
 /// </summary>

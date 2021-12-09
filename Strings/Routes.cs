@@ -1,8 +1,12 @@
-﻿namespace MeAnotoApi.Controllers;
+﻿namespace MeAnotoApi.Strings;
 /// <summary>
 /// Routes
 /// </summary>
 public class Routes {
+	/// <summary>
+	/// Account
+	/// </summary>
+	public const string Account = "cuenta";
 	/// <summary>
 	/// All
 	/// </summary>
@@ -11,10 +15,6 @@ public class Routes {
 	/// API
 	/// </summary>
 	public const string Api = "api";
-	/// <summary>
-	/// Authentication
-	/// </summary>
-	public const string Authentication = "autenticación";
 	/// <summary>
 	/// Login
 	/// </summary>
@@ -35,8 +35,4 @@ public class Routes {
 	/// Enroll
 	/// </summary>
 	public const string Enroll = "inscribir";
-	/// <summary>
-	/// Account
-	/// </summary>
-	public const string Account = "cuenta";
 }

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-using MeAnotoApi.Authentication;
+using MeAnotoApi.Information;
 using MeAnotoApi.Models.Entities;
 
 using Microsoft.AspNetCore.Identity;

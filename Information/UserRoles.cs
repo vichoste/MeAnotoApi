@@ -1,4 +1,4 @@
-﻿namespace MeAnotoApi.Authentication;
+﻿namespace MeAnotoApi.Information;
 /// <summary>
 /// User roles
 /// </summary>

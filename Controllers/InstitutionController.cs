@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using MeAnotoApi.Authentication;
+using MeAnotoApi.Information;
 using MeAnotoApi.Contexts;
 using MeAnotoApi.Models.Entities;
+using MeAnotoApi.Strings;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -31,7 +32,7 @@ public class InstitutionController : ControllerBase {
 	/// </summary>
 	/// <returns>List of institutions in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<EntityResponse>>> Get() {
+	public async Task<ActionResult<IEnumerable<EntityResponse>>> GetInstitution() {
 		var institutions = await this._context.Institutions.ToListAsync();
 		var response = new List<EntityResponse>();
 		foreach (var institution in institutions) {
@@ -42,11 +43,11 @@ public class InstitutionController : ControllerBase {
 	/// <summary>
 	/// Gets an institution
 	/// </summary>
-	/// <param name="id">Event ID</param>
+	/// <param name="institutionId">Event ID</param>
 	/// <returns>Event object in JSON format</returns>
-	[HttpGet("{id}")]
-	public async Task<ActionResult<EntityResponse>> Get(int id) {
-		var institution = await this._context.Institutions.FindAsync(id);
+	[HttpGet("{institutionId}")]
+	public async Task<ActionResult<EntityResponse>> GetInstitution(int institutionId) {
+		var institution = await this._context.Institutions.FindAsync(institutionId);
 		return institution is not null
 			? this.Ok(new EntityResponse { Id = institution.Id, Name = institution.Name })
 			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
@@ -57,7 +58,7 @@ public class InstitutionController : ControllerBase {
 	/// <param name="institution">Institution</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[HttpPost]
-	public async Task<ActionResult<Institution>> Post(Institution institution) {
+	public async Task<ActionResult<Institution>> CreateInstitution(Institution institution) {
 		var existing = await this._context.Institutions.FirstOrDefaultAsync(i => i.Name == institution.Name);
 		if (existing is not null) {
 			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
