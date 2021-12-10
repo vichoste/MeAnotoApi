@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MeAnotoApi.Controllers;
 /// <summary>
-/// Controller for event instance
+/// Controller for event instance aimed at professors
 /// </summary>
 [ApiController, EnableCors("FrontendCors"), Route(Routes.Api + "/" + UserRoles.Professor + "/" + Entities.EventInstance)]
 public class EventInstanceProfessorController : ControllerBase {
@@ -43,7 +43,7 @@ public class EventInstanceProfessorController : ControllerBase {
 		}
 	}
 	/// <summary>
-	/// Gets an event instance
+	/// Gets a single event instance
 	/// </summary>
 	/// <param name="eventInstanceId">Event instance ID</param>
 	/// <returns>Event instance object in JSON format</returns>
@@ -70,6 +70,30 @@ public class EventInstanceProfessorController : ControllerBase {
 				from e in this._context.Events
 				join ei in this._context.EventInstances
 				on e.Id equals ei.Event.Id
+				select ei;
+			return this.Ok(data);
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
+		}
+	}
+	/// <summary>
+	/// Gets all the event instances owned by a professor
+	/// </summary>
+	/// <returns>List of owned events in JSON format</returns>
+	[Authorize(Roles = UserRoles.Professor), HttpGet(Routes.All + "/{professorId}")]
+	public ActionResult<IEnumerable<EventInstance>> ListProfessorEventInstances() { // TODO This wea is bringing everything
+		try {
+			var name = this.HttpContext.User.Identity.Name;
+			var professor = this._context.Professors.First(p => p.UserName == name);
+			if (professor is null) {
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+			}
+			var data =
+				from ei in this._context.EventInstances
+				from p in this._context.Professors
+				join e in this._context.Events
+				on ei.Event.Id equals e.Id
+				where e.Professor.Id == p.Id
 				select ei;
 			return this.Ok(data);
 		} catch (Exception) {
