@@ -15,5 +15,5 @@ public class Institution : Entity {
 	/// Events
 	/// </summary>
 	[JsonIgnore]
-	public ICollection<Event> Events { get; set; }
+	public virtual ICollection<Event> Events { get; set; }
 }

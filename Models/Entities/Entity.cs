@@ -11,7 +11,7 @@ public abstract class Entity {
 	/// ID
 	/// </summary>
 	[JsonIgnore]
-	public int Id { get; set; }
+	public virtual int Id { get; set; }
 	/// <summary>
 	/// Name
 	/// </summary>

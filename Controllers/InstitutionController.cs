@@ -7,7 +7,6 @@ using MeAnotoApi.Information;
 using MeAnotoApi.Models.Entities;
 using MeAnotoApi.Strings;
 
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +16,7 @@ namespace MeAnotoApi.Controllers;
 /// <summary>
 /// Controller for institution
 /// </summary>
-[ApiController, Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Administrator), EnableCors("FrontendCors"), Route(Routes.Api + "/" + Entities.Institution)]
+[Authorize(Roles = UserRoles.Administrator), ApiController, EnableCors("FrontendCors"), Route(Routes.Api + "/" + Entities.Institution)]
 public class InstitutionController : ControllerBase {
 	private readonly MeAnotoContext _context;
 	/// <summary>
@@ -72,7 +71,7 @@ public class InstitutionController : ControllerBase {
 			}
 			_ = this._context.Institutions.Add(institution);
 			_ = await this._context.SaveChangesAsync();
-			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk, Entity = institution });
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk, EntityResponse = new EntityResponse { Id = institution.Id, Name = institution.Name } });
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}

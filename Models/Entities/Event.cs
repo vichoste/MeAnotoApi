@@ -17,20 +17,20 @@ public class Event : Entity {
 	/// Event capacity
 	/// </summary>
 	[JsonPropertyName(JsonPropertyNames.Capacity)]
-	public int Capacity { get; set; }
+	public virtual int Capacity { get; set; }
 	/// <summary>
 	/// Professor
 	/// </summary>
 	[JsonIgnore]
-	public Professor Professor { get; set; }
+	public virtual Professor Professor { get; set; }
 	/// <summary>
 	/// Institution
 	/// </summary>
 	[JsonIgnore]
-	public Institution Institution { get; set; }
+	public virtual Institution Institution { get; set; }
 	/// <summary>
 	/// Event instances
 	/// </summary>
 	[JsonIgnore]
-	public ICollection<EventInstance> EventInstances { get; set; }
+	public virtual ICollection<EventInstance> EventInstances { get; set; }
 }

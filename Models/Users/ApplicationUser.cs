@@ -14,20 +14,20 @@ public class ApplicationUser : IdentityUser {
 	/// Chilean RUN
 	/// </summary>
 	[JsonPropertyName(JsonPropertyNames.Run)]
-	public string Run { get; set; }
+	public virtual string Run { get; set; }
 	/// <summary>
 	/// First name
 	/// </summary>
 	[JsonPropertyName(JsonPropertyNames.FirstName)]
-	public string FirstName { get; set; }
+	public virtual string FirstName { get; set; }
 	/// <summary>
 	/// Last name
 	/// </summary>
 	[JsonPropertyName(JsonPropertyNames.LastName)]
-	public string LastName { get; set; }
+	public virtual string LastName { get; set; }
 	/// <summary>
 	/// Institution
 	/// </summary>
 	[JsonIgnore]
-	public Institution Institution { get; set; }
+	public virtual Institution Institution { get; set; }
 }

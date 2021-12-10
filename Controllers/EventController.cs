@@ -8,7 +8,6 @@ using MeAnotoApi.Information;
 using MeAnotoApi.Models.Entities;
 using MeAnotoApi.Strings;
 
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +17,7 @@ namespace MeAnotoApi.Controllers;
 /// <summary>
 /// Controller for event
 /// </summary>
-[ApiController, Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Professor), EnableCors("FrontendCors"), Route(Routes.Api + "/" + Entities.Event)]
+[Authorize(Roles = UserRoles.Professor), ApiController, EnableCors("FrontendCors"), Route(Routes.Api + "/" + Entities.Event)]
 public class EventController : ControllerBase {
 	private readonly MeAnotoContext _context;
 	/// <summary>
@@ -96,7 +95,7 @@ public class EventController : ControllerBase {
 			@event.Professor = professor;
 			_ = this._context.Events.Add(@event);
 			_ = await this._context.SaveChangesAsync();
-			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk, Entity = @event });
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk, EntityResponse = new EntityResponse { Id = @event.Id, Name = @event.Name, Owner = @event.Professor.UserName } });
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}

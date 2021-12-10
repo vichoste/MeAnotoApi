@@ -1,6 +1,5 @@
 ﻿using System.Text.Json.Serialization;
 
-using MeAnotoApi.Models.Entities;
 using MeAnotoApi.Strings;
 
 namespace MeAnotoApi.Information;
@@ -22,5 +21,5 @@ public sealed class Response {
 	/// Entity result
 	/// </summary>
 	[JsonPropertyName(Entities.Entity)]
-	public Entity Entity { get; set; }
+	public EntityResponse EntityResponse { get; set; }
 }
