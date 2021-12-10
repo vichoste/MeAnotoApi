@@ -48,12 +48,16 @@ public class EventInstanceProfessorController : ControllerBase {
 	/// <param name="eventInstanceId">Event instance ID</param>
 	/// <returns>Event instance object in JSON format</returns>
 	[HttpGet("{eventInstanceId}")]
-	public ActionResult<IQueryable<EventInstance>> GetEventInstance(int eventInstanceId) {
+	public ActionResult<IQueryable<EntityResponse>> GetEventInstance(int eventInstanceId) {
 		try {
 			var data =
 				from ei in this._context.EventInstances
 				where ei.Id == eventInstanceId
-				select ei;
+				select new EntityResponse {
+					Id = ei.Id,
+					Name = ei.Name,
+					Owner = ei.Event.Professor.UserName
+				};
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
@@ -64,13 +68,17 @@ public class EventInstanceProfessorController : ControllerBase {
 	/// </summary>
 	/// <returns>List of owned events in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public ActionResult<IEnumerable<EventInstance>> ListEventInstances() {
+	public ActionResult<IEnumerable<EntityResponse>> ListEventInstances() {
 		try {
 			var data =
 				from e in this._context.Events
 				join ei in this._context.EventInstances
 				on e.Id equals ei.Event.Id
-				select ei;
+				select new EntityResponse {
+					Id = ei.Id,
+					Name = ei.Name,
+					Owner = ei.Event.Professor.UserName
+				};
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
@@ -81,7 +89,7 @@ public class EventInstanceProfessorController : ControllerBase {
 	/// </summary>
 	/// <returns>List of owned events in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor), HttpGet(Routes.All + "/{professorId}")]
-	public ActionResult<IEnumerable<EventInstance>> ListProfessorEventInstances() { // TODO This wea is bringing everything
+	public ActionResult<IEnumerable<EntityResponse>> ListProfessorEventInstances() { // TODO This wea is bringing everything
 		try {
 			var name = this.HttpContext.User.Identity.Name;
 			var professor = this._context.Professors.First(p => p.UserName == name);
@@ -94,7 +102,11 @@ public class EventInstanceProfessorController : ControllerBase {
 				join e in this._context.Events
 				on ei.Event.Id equals e.Id
 				where e.Professor.Id == p.Id
-				select ei;
+				select new EntityResponse {
+					Id = ei.Id,
+					Name = ei.Name,
+					Owner = ei.Event.Professor.UserName
+				};
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });

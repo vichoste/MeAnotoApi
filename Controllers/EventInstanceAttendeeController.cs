@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 using MeAnotoApi.Contexts;
 using MeAnotoApi.Information;
-using MeAnotoApi.Models.Entities;
 using MeAnotoApi.Strings;
 
 using Microsoft.AspNetCore.Authorization;
@@ -29,7 +28,7 @@ public class EventInstanceAttendeeController : ControllerBase {
 	/// </summary>
 	/// <returns>List of owned events in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public ActionResult<IEnumerable<EventInstance>> ListAttendeeEventInstances() {
+	public ActionResult<IEnumerable<EntityResponse>> ListAttendeeEventInstances() {
 		try {
 			var name = this.HttpContext.User.Identity.Name;
 			var attendee = this._context.Attendees.First(p => p.UserName == name);
@@ -40,7 +39,11 @@ public class EventInstanceAttendeeController : ControllerBase {
 				from a in this._context.Attendees
 				from ei in this._context.EventInstances
 				where ei.Attendees.Contains(a)
-				select ei;
+				select new EntityResponse {
+					Id = ei.Id,
+					Name = ei.Name,
+					Owner = ei.Event.Professor.UserName
+				};
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });

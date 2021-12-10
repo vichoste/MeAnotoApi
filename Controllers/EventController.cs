@@ -30,12 +30,16 @@ public class EventController : ControllerBase {
 	/// <param name="eventId">Event ID</param>
 	/// <returns>Event in JSON format</returns>
 	[HttpGet("{eventId}")]
-	public ActionResult<IQueryable<Event>> GetEvent(int eventId) {
+	public ActionResult<IQueryable<EntityResponse>> GetEvent(int eventId) {
 		try {
 			var data =
 				from e in this._context.Events
 				where e.Id == eventId
-				select e;
+				select new EntityResponse {
+					Id = e.Id,
+					Name = e.Name,
+					Owner = e.Professor.UserName
+				};
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
@@ -46,11 +50,15 @@ public class EventController : ControllerBase {
 	/// </summary>
 	/// <returns>List of events in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public ActionResult<IQueryable<Event>> ListEvents() {
+	public ActionResult<IQueryable<EntityResponse>> ListEvents() {
 		try {
 			var data =
 				from e in this._context.Events
-				select e;
+				select new EntityResponse {
+					Id = e.Id,
+					Name = e.Name,
+					Owner = e.Professor.UserName
+				};
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
@@ -61,7 +69,7 @@ public class EventController : ControllerBase {
 	/// </summary>
 	/// <returns>List of the professor's events in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor), HttpGet(Routes.All + "/" + UserRoles.Professor)]
-	public ActionResult<IQueryable<Event>> ListProfessorEvents() {
+	public ActionResult<IQueryable<EntityResponse>> ListProfessorEvents() {
 		try {
 			var name = this.HttpContext.User.Identity.Name;
 			var professor = this._context.Professors.First(p => p.UserName == name);
@@ -73,7 +81,11 @@ public class EventController : ControllerBase {
 				join e in this._context.Events
 				on p equals e.Professor
 				where p == professor
-				select e;
+				select new EntityResponse {
+					Id = e.Id,
+					Name = e.Name,
+					Owner = e.Professor.UserName
+				};
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
