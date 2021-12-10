@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
+using MeAnotoApi.Information;
 using MeAnotoApi.Models.Users;
 
 namespace MeAnotoApi.Models.Entities;
@@ -15,6 +16,7 @@ public class Event : Entity {
 	/// <summary>
 	/// Event capacity
 	/// </summary>
+	[JsonPropertyName(JsonPropertyNames.Capacity)]
 	public int Capacity { get; set; }
 	/// <summary>
 	/// Professor

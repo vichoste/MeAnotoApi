@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using MeAnotoApi.Contexts;
@@ -30,12 +31,16 @@ public class InstitutionController : ControllerBase {
 	/// <returns>List of institutions in JSON format</returns>
 	[HttpGet(Routes.All)]
 	public async Task<ActionResult<IEnumerable<EntityResponse>>> GetInstitution() {
-		var institutions = await this._context.Institutions.ToListAsync();
-		var response = new List<EntityResponse>();
-		foreach (var institution in institutions) {
-			response.Add(new EntityResponse { Id = institution.Id, Name = institution.Name });
+		try {
+			var institutions = await this._context.Institutions.ToListAsync();
+			var response = new List<EntityResponse>();
+			foreach (var institution in institutions) {
+				response.Add(new EntityResponse { Id = institution.Id, Name = institution.Name });
+			}
+			return response;
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
-		return response;
 	}
 	/// <summary>
 	/// Gets an institution
@@ -44,10 +49,14 @@ public class InstitutionController : ControllerBase {
 	/// <returns>Event object in JSON format</returns>
 	[HttpGet("{institutionId}")]
 	public async Task<ActionResult<EntityResponse>> GetInstitution(int institutionId) {
-		var institution = await this._context.Institutions.FindAsync(institutionId);
-		return institution is not null
-			? this.Ok(new EntityResponse { Id = institution.Id, Name = institution.Name })
-			: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
+		try {
+			var institution = await this._context.Institutions.FindAsync(institutionId);
+			return institution is not null
+				? this.Ok(new EntityResponse { Id = institution.Id, Name = institution.Name })
+				: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
+		}
 	}
 	/// <summary>
 	/// Creates an institution
@@ -56,12 +65,16 @@ public class InstitutionController : ControllerBase {
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[HttpPost]
 	public async Task<ActionResult<Institution>> CreateInstitution(Institution institution) {
-		var existing = await this._context.Institutions.FirstOrDefaultAsync(i => i.Name == institution.Name);
-		if (existing is not null) {
-			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+		try {
+			var existing = await this._context.Institutions.FirstOrDefaultAsync(i => i.Name == institution.Name);
+			if (existing is not null) {
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
+			}
+			_ = this._context.Institutions.Add(institution);
+			_ = await this._context.SaveChangesAsync();
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk, Entity = institution });
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
-		_ = this._context.Institutions.Add(institution);
-		_ = await this._context.SaveChangesAsync();
-		return this.Ok(institution);
 	}
 }

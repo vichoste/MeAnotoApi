@@ -73,10 +73,15 @@ public class AccountController : ControllerBase {
 	/// <returns>User in JSON format</returns>
 	[HttpGet("{userId}")]
 	public async Task<ActionResult<ApplicationUser>> GetApplicationUser(string userId) {
-		var user = await this._userManager.Users.FirstAsync(u => u.Id == userId);
-		return user is null
-			? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
-			: this.Ok(user);
+		try {
+			var user = await this._userManager.Users.FirstAsync(u => u.Id == userId);
+			return user is null
+				? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
+				: this.Ok(user);
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
+		}
+
 	}
 	/// <summary>
 	/// Logs in a user
@@ -85,32 +90,36 @@ public class AccountController : ControllerBase {
 	/// <returns>Token information in JSON format</returns>
 	[AllowAnonymous, HttpGet(Routes.Login)]
 	public async Task<ActionResult<Token>> GetLoginToken([FromBody] LoginModel model) {
-		var user = await this._userManager.FindByNameAsync(model.Email);
-		if (user != null && await this._userManager.CheckPasswordAsync(user, model.Password)) {
-			var userRoles = await this._userManager.GetRolesAsync(user);
-			var authClaims = new List<Claim> {
+		try {
+			var user = await this._userManager.FindByNameAsync(model.Email);
+			if (user != null && await this._userManager.CheckPasswordAsync(user, model.Password)) {
+				var userRoles = await this._userManager.GetRolesAsync(user);
+				var authClaims = new List<Claim> {
 				new(ClaimTypes.Name, user.UserName),
 				new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 			};
-			foreach (var userRole in userRoles) {
-				authClaims.Add(new(ClaimTypes.Role, userRole));
+				foreach (var userRole in userRoles) {
+					authClaims.Add(new(ClaimTypes.Role, userRole));
+				}
+				var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this._configuration["JWT:Secret"]));
+				var token = new JwtSecurityToken(
+					issuer: this._configuration["JWT:ValidIssuer"],
+					audience: this._configuration["JWT:ValidAudience"],
+					expires: DateTime.Now.AddHours(1),
+					claims: authClaims,
+					signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+				);
+				return this.Ok(new Token {
+					Status = Statuses.Ok,
+					Info = new JwtSecurityTokenHandler().WriteToken(token),
+					Expiration = token.ValidTo,
+					Roles = userRoles
+				});
 			}
-			var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this._configuration["JWT:Secret"]));
-			var token = new JwtSecurityToken(
-				issuer: this._configuration["JWT:ValidIssuer"],
-				audience: this._configuration["JWT:ValidAudience"],
-				expires: DateTime.Now.AddHours(1),
-				claims: authClaims,
-				signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-			);
-			return this.Ok(new Token {
-				Status = Statuses.Ok,
-				Info = new JwtSecurityTokenHandler().WriteToken(token),
-				Expiration = token.ValidTo,
-				Roles = userRoles
-			});
+			return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
-		return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
 	}
 	/// <summary>
 	/// Creates an administrator
@@ -119,29 +128,33 @@ public class AccountController : ControllerBase {
 	/// <returns>OK if successful in JSON format</returns>
 	[AllowAnonymous, HttpPost(Routes.Register + "/" + UserRoles.Administrator)]
 	public async Task<ActionResult<Token>> RegisterAdministrator([FromBody] RegisterModel model) { // TODO this thing is a vulnerability
-		var userExists = await this._userManager.FindByNameAsync(model.Email);
-		if (userExists != null) {
-			return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
+		try {
+			var userExists = await this._userManager.FindByNameAsync(model.Email);
+			if (userExists != null) {
+				return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
+			}
+			var user = new ApplicationUser() {
+				UserName = model.Email,
+				Email = model.Email,
+				SecurityStamp = Guid.NewGuid().ToString(),
+				Run = model.Run,
+				FirstName = model.FirstName,
+				LastName = model.LastName,
+			};
+			var result = await this._userManager.CreateAsync(user, model.Password);
+			if (!result.Succeeded) {
+				return this.StatusCode(500, new Response { Status = Statuses.InternalServerError, Message = Messages.InternalServerError });
+			}
+			if (!await this._roleManager.RoleExistsAsync(UserRoles.Administrator)) {
+				_ = await this._roleManager.CreateAsync(new(UserRoles.Administrator));
+			}
+			if (await this._roleManager.RoleExistsAsync(UserRoles.Administrator)) {
+				_ = await this._userManager.AddToRoleAsync(user, UserRoles.Administrator);
+			}
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
-		var user = new ApplicationUser() {
-			UserName = model.Email,
-			Email = model.Email,
-			SecurityStamp = Guid.NewGuid().ToString(),
-			Run = model.Run,
-			FirstName = model.FirstName,
-			LastName = model.LastName,
-		};
-		var result = await this._userManager.CreateAsync(user, model.Password);
-		if (!result.Succeeded) {
-			return this.StatusCode(500, new Response { Status = Statuses.InternalServerError, Message = Messages.InternalServerError });
-		}
-		if (!await this._roleManager.RoleExistsAsync(UserRoles.Administrator)) {
-			_ = await this._roleManager.CreateAsync(new(UserRoles.Administrator));
-		}
-		if (await this._roleManager.RoleExistsAsync(UserRoles.Administrator)) {
-			_ = await this._userManager.AddToRoleAsync(user, UserRoles.Administrator);
-		}
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}
 	/// <summary>
 	/// Creates a manager
@@ -151,34 +164,38 @@ public class AccountController : ControllerBase {
 	/// <returns>OK if successful in JSON format</returns>
 	[HttpPost(Routes.Register + "/" + UserRoles.Manager + "/{institutionId}")]
 	public async Task<ActionResult<Token>> RegisterManager([FromBody] RegisterModel model, int institutionId) {
-		var institution = await this._context.Institutions.FindAsync(institutionId);
-		if (institution is null) {
-			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		try {
+			var institution = await this._context.Institutions.FindAsync(institutionId);
+			if (institution is null) {
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+			}
+			var userExists = await this._userManager.FindByNameAsync(model.Email);
+			if (userExists != null) {
+				return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
+			}
+			var user = new ApplicationUser() {
+				UserName = model.Email,
+				Email = model.Email,
+				Institution = institution,
+				SecurityStamp = Guid.NewGuid().ToString(),
+				Run = model.Run,
+				FirstName = model.FirstName,
+				LastName = model.LastName,
+			};
+			var result = await this._userManager.CreateAsync(user, model.Password);
+			if (!result.Succeeded) {
+				return this.StatusCode(500, new Response { Status = Statuses.InternalServerError, Message = Messages.InternalServerError });
+			}
+			if (!await this._roleManager.RoleExistsAsync(UserRoles.Manager)) {
+				_ = await this._roleManager.CreateAsync(new(UserRoles.Manager));
+			}
+			if (await this._roleManager.RoleExistsAsync(UserRoles.Manager)) {
+				_ = await this._userManager.AddToRoleAsync(user, UserRoles.Manager);
+			}
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
-		var userExists = await this._userManager.FindByNameAsync(model.Email);
-		if (userExists != null) {
-			return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
-		}
-		var user = new ApplicationUser() {
-			UserName = model.Email,
-			Email = model.Email,
-			Institution = institution,
-			SecurityStamp = Guid.NewGuid().ToString(),
-			Run = model.Run,
-			FirstName = model.FirstName,
-			LastName = model.LastName,
-		};
-		var result = await this._userManager.CreateAsync(user, model.Password);
-		if (!result.Succeeded) {
-			return this.StatusCode(500, new Response { Status = Statuses.InternalServerError, Message = Messages.InternalServerError });
-		}
-		if (!await this._roleManager.RoleExistsAsync(UserRoles.Manager)) {
-			_ = await this._roleManager.CreateAsync(new(UserRoles.Manager));
-		}
-		if (await this._roleManager.RoleExistsAsync(UserRoles.Manager)) {
-			_ = await this._userManager.AddToRoleAsync(user, UserRoles.Manager);
-		}
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}
 	/// <summary>
 	/// Creates a professor
@@ -188,34 +205,38 @@ public class AccountController : ControllerBase {
 	/// <returns>OK if successful in JSON format</returns>
 	[HttpPost(Routes.Register + "/" + UserRoles.Professor + "/{institutionId}")]
 	public async Task<ActionResult<Token>> RegisterProfessor([FromBody] RegisterModel model, int institutionId) {
-		var institution = await this._context.Institutions.FindAsync(institutionId);
-		if (institution is null) {
-			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		try {
+			var institution = await this._context.Institutions.FindAsync(institutionId);
+			if (institution is null) {
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+			}
+			var userExists = await this._userManager.FindByNameAsync(model.Email);
+			if (userExists != null) {
+				return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
+			}
+			var user = new Professor() {
+				UserName = model.Email,
+				Email = model.Email,
+				Institution = institution,
+				SecurityStamp = Guid.NewGuid().ToString(),
+				Run = model.Run,
+				FirstName = model.FirstName,
+				LastName = model.LastName,
+			};
+			var result = await this._userManager.CreateAsync(user, model.Password);
+			if (!result.Succeeded) {
+				return this.StatusCode(500, new Response { Status = Statuses.InternalServerError, Message = Messages.InternalServerError });
+			}
+			if (!await this._roleManager.RoleExistsAsync(UserRoles.Professor)) {
+				_ = await this._roleManager.CreateAsync(new(UserRoles.Professor));
+			}
+			if (await this._roleManager.RoleExistsAsync(UserRoles.Professor)) {
+				_ = await this._userManager.AddToRoleAsync(user, UserRoles.Professor);
+			}
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
-		var userExists = await this._userManager.FindByNameAsync(model.Email);
-		if (userExists != null) {
-			return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
-		}
-		var user = new Professor() {
-			UserName = model.Email,
-			Email = model.Email,
-			Institution = institution,
-			SecurityStamp = Guid.NewGuid().ToString(),
-			Run = model.Run,
-			FirstName = model.FirstName,
-			LastName = model.LastName,
-		};
-		var result = await this._userManager.CreateAsync(user, model.Password);
-		if (!result.Succeeded) {
-			return this.StatusCode(500, new Response { Status = Statuses.InternalServerError, Message = Messages.InternalServerError });
-		}
-		if (!await this._roleManager.RoleExistsAsync(UserRoles.Professor)) {
-			_ = await this._roleManager.CreateAsync(new(UserRoles.Professor));
-		}
-		if (await this._roleManager.RoleExistsAsync(UserRoles.Professor)) {
-			_ = await this._userManager.AddToRoleAsync(user, UserRoles.Professor);
-		}
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}
 	/// <summary>
 	/// Creates an attendee
@@ -225,33 +246,37 @@ public class AccountController : ControllerBase {
 	/// <returns>OK if successful in JSON format</returns>
 	[HttpPost(Routes.Register + "/" + UserRoles.Attendee + "/{institutionId}")]
 	public async Task<ActionResult<Token>> RegisterAttendee([FromBody] RegisterModel model, int institutionId) {
-		var institution = await this._context.Institutions.FindAsync(institutionId);
-		if (institution is null) {
-			return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+		try {
+			var institution = await this._context.Institutions.FindAsync(institutionId);
+			if (institution is null) {
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+			}
+			var userExists = await this._userManager.FindByNameAsync(model.Email);
+			if (userExists != null) {
+				return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
+			}
+			var user = new Attendee() {
+				UserName = model.Email,
+				Email = model.Email,
+				Institution = institution,
+				SecurityStamp = Guid.NewGuid().ToString(),
+				Run = model.Run,
+				FirstName = model.FirstName,
+				LastName = model.LastName,
+			};
+			var result = await this._userManager.CreateAsync(user, model.Password);
+			if (!result.Succeeded) {
+				return this.StatusCode(500, new Response { Status = Statuses.InternalServerError, Message = Messages.InternalServerError });
+			}
+			if (!await this._roleManager.RoleExistsAsync(UserRoles.Attendee)) {
+				_ = await this._roleManager.CreateAsync(new(UserRoles.Attendee));
+			}
+			if (await this._roleManager.RoleExistsAsync(UserRoles.Attendee)) {
+				_ = await this._userManager.AddToRoleAsync(user, UserRoles.Attendee);
+			}
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
-		var userExists = await this._userManager.FindByNameAsync(model.Email);
-		if (userExists != null) {
-			return this.Unauthorized(new Response { Status = Statuses.Unauthorized, Message = Messages.AuthorizationError });
-		}
-		var user = new Attendee() {
-			UserName = model.Email,
-			Email = model.Email,
-			Institution = institution,
-			SecurityStamp = Guid.NewGuid().ToString(),
-			Run = model.Run,
-			FirstName = model.FirstName,
-			LastName = model.LastName,
-		};
-		var result = await this._userManager.CreateAsync(user, model.Password);
-		if (!result.Succeeded) {
-			return this.StatusCode(500, new Response { Status = Statuses.InternalServerError, Message = Messages.InternalServerError });
-		}
-		if (!await this._roleManager.RoleExistsAsync(UserRoles.Attendee)) {
-			_ = await this._roleManager.CreateAsync(new(UserRoles.Attendee));
-		}
-		if (await this._roleManager.RoleExistsAsync(UserRoles.Attendee)) {
-			_ = await this._userManager.AddToRoleAsync(user, UserRoles.Attendee);
-		}
-		return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 	}
 }

@@ -3,30 +3,10 @@
 /// Entities
 /// </summary>
 public class Entities {
-	///// <summary>
-	///// Campus
-	///// </summary>
-	//public const string CampusSingular = "campus";
-	///// <summary>
-	///// Career
-	///// </summary>
-	//public const string Career = "carrera";
-	///// <summary>
-	///// Course
-	///// </summary>
-	//public const string Course = "módulo";
-	///// <summary>
-	///// Course instance
-	///// </summary>
-	//public const string CourseInstance = "instanciamódulo";
 	/// <summary>
-	/// Institution
+	/// Entity
 	/// </summary>
-	public const string Institution = "institución";
-	///// <summary>
-	///// Room
-	///// </summary>
-	//public const string Room = "sala";
+	public const string Entity = "entidad";
 	/// <summary>
 	/// Event
 	/// </summary>
@@ -35,4 +15,8 @@ public class Entities {
 	/// Event instance
 	/// </summary>
 	public const string EventInstance = "instanciaevento";
+	/// <summary>
+	/// Institution
+	/// </summary>
+	public const string Institution = "institución";
 }

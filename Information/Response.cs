@@ -1,5 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
+using MeAnotoApi.Models.Entities;
+using MeAnotoApi.Strings;
+
 namespace MeAnotoApi.Information;
 /// <summary>
 /// HTML response JSON
@@ -15,4 +18,9 @@ public sealed class Response {
 	/// </summary>
 	[JsonPropertyName(JsonPropertyNames.Message)]
 	public string Message { get; set; }
+	/// <summary>
+	/// Entity result
+	/// </summary>
+	[JsonPropertyName(Entities.Entity)]
+	public Entity Entity { get; set; }
 }
