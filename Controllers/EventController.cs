@@ -95,25 +95,20 @@ public class EventController : ControllerBase {
 	/// Creates an event
 	/// </summary>
 	/// <param name="event">Event</param>
-	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor), HttpPost("{institutionId}")]
-	public async Task<ActionResult<Response>> CreateEvent(Event @event, int institutionId) {
+	public async Task<ActionResult<Response>> CreateEvent(Event @event) {
 		try {
 			var existing = await this._context.Events.FirstOrDefaultAsync(e => e.Name == @event.Name);
 			if (existing is not null) {
 				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
-			}
-			var institution = await this._context.Institutions.FindAsync(institutionId);
-			if (institution is null) {
-				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 			}
 			var name = this.HttpContext.User.Identity.Name;
 			var professor = this._context.Professors.First(p => p.UserName == name);
 			if (professor is null) {
 				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 			}
-			@event.Institution = institution;
+			@event.Institution = professor.Institution;
 			@event.Professor = professor;
 			professor.Events.Add(@event);
 			_ = this._context.Events.Add(@event);
