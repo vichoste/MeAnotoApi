@@ -59,10 +59,9 @@ public class EventController : ControllerBase {
 	/// <summary>
 	/// Gets all the events owned by a professor
 	/// </summary>
-	/// <param name="professorId">Professor ID</param>
 	/// <returns>List of the professor's events in JSON format</returns>
-	[Authorize(Roles = UserRoles.Professor), HttpGet(Routes.All + "/" + UserRoles.Professor + "/{professorId}")]
-	public ActionResult<IQueryable<Event>> ListProfessorEvents(int professorId) {
+	[Authorize(Roles = UserRoles.Professor), HttpGet(Routes.All + "/" + UserRoles.Professor)]
+	public ActionResult<IQueryable<Event>> ListProfessorEvents() {
 		try {
 			var name = this.HttpContext.User.Identity.Name;
 			var professor = this._context.Professors.First(p => p.UserName == name);
@@ -70,10 +69,10 @@ public class EventController : ControllerBase {
 				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 			}
 			var data =
-				from e in this._context.Events
-				join p in this._context.Professors
-				on e.Professor.Id equals p.Id
-				where p.Id == professorId.ToString()
+				from p in this._context.Professors
+				join e in this._context.Events
+				on p equals e.Professor
+				where p == professor
 				select e;
 			return this.Ok(data);
 		} catch (Exception) {

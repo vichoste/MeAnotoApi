@@ -28,7 +28,7 @@ public class EventInstanceAttendeeController : ControllerBase {
 	/// Gets all the event instances owned by a attendee
 	/// </summary>
 	/// <returns>List of owned events in JSON format</returns>
-	[HttpGet(Routes.All + "/{attendeeId}")]
+	[HttpGet(Routes.All)]
 	public ActionResult<IEnumerable<EventInstance>> ListAttendeeEventInstances() {
 		try {
 			var name = this.HttpContext.User.Identity.Name;
@@ -37,9 +37,9 @@ public class EventInstanceAttendeeController : ControllerBase {
 				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 			}
 			var data =
-				from ei in this._context.EventInstances
 				from a in this._context.Attendees
-				where ei.Attendees.Contains(a) == true
+				from ei in this._context.EventInstances
+				where ei.Attendees.Contains(a)
 				select ei;
 			return this.Ok(data);
 		} catch (Exception) {
