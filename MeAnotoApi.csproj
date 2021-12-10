@@ -7,6 +7,7 @@
     <AnalysisLevel>6.0</AnalysisLevel>
     <Nullable>disable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <UserSecretsId>cba6d50c-76e3-4977-8eb2-99a97584c6c1</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
