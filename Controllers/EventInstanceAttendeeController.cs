@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 using MeAnotoApi.Contexts;
 using MeAnotoApi.Information;
-using MeAnotoApi.Models.Entities;
 using MeAnotoApi.Strings;
 
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +14,7 @@ namespace MeAnotoApi.Controllers;
 /// <summary>
 /// Controller for event instance
 /// </summary>
-[Authorize(Roles = UserRoles.Attendee), ApiController, EnableCors("FrontendCors"), Route(Routes.Api + "/" + UserRoles.Attendee + "/" + Entities.EventInstance)]
+[ApiController, EnableCors("FrontendCors"), Route(Routes.Api + "/" + UserRoles.Attendee + "/" + Entities.EventInstance)]
 public class EventInstanceAttendeeController : ControllerBase {
 	private readonly MeAnotoContext _context;
 	/// <summary>
@@ -25,27 +23,11 @@ public class EventInstanceAttendeeController : ControllerBase {
 	/// <param name="context">Database context</param>
 	public EventInstanceAttendeeController(MeAnotoContext context) => this._context = context;
 	/// <summary>
-	/// Gets the event instances associated with an attendee
-	/// </summary>
-	/// <returns>Event instances associated with an attendee in JSON format</returns>
-	[HttpGet(Routes.All)]
-	public ActionResult<IEnumerable<EventInstance>> ListAttendeeEventInstances() {
-		try {
-			var name = this.HttpContext.User.Identity.Name;
-			var attendee = this._context.Attendees.First(p => p.UserName == name);
-			return attendee is not null
-				? this.Ok(attendee.EventInstances.ToList())
-				: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
-		} catch (Exception) {
-			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
-		}
-	}
-	/// <summary>
 	/// Enrolls an attendee into an event instance
 	/// </summary>
 	/// <param name="eventInstanceId">Event instance ID</param>
 	/// <returns>OK if enrolled successfully</returns>
-	[HttpPost("{eventInstanceId}/" + Routes.Enroll)]
+	[Authorize(Roles = UserRoles.Attendee), HttpPost("{eventInstanceId}/" + Routes.Enroll)]
 	public async Task<ActionResult<Response>> EnrollAttendee(int eventInstanceId) {
 		try {
 			var name = this.HttpContext.User.Identity.Name;

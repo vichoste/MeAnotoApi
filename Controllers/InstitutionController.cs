@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using MeAnotoApi.Contexts;
@@ -25,34 +25,33 @@ public class InstitutionController : ControllerBase {
 	/// <param name="context">Database context</param>
 	public InstitutionController(MeAnotoContext context) => this._context = context;
 	/// <summary>
-	/// Gets all the institutions
-	/// </summary>
-	/// <returns>List of institutions in JSON format</returns>
-	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<EntityResponse>>> GetInstitution() {
-		try {
-			var institutions = await this._context.Institutions.ToListAsync();
-			var response = new List<EntityResponse>();
-			foreach (var institution in institutions) {
-				response.Add(new EntityResponse { Id = institution.Id, Name = institution.Name });
-			}
-			return response;
-		} catch (Exception) {
-			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
-		}
-	}
-	/// <summary>
 	/// Gets an institution
 	/// </summary>
 	/// <param name="institutionId">Event ID</param>
 	/// <returns>Event object in JSON format</returns>
 	[HttpGet("{institutionId}")]
-	public async Task<ActionResult<EntityResponse>> GetInstitution(int institutionId) {
+	public ActionResult<EntityResponse> GetInstitution(int institutionId) {
 		try {
-			var institution = await this._context.Institutions.FindAsync(institutionId);
-			return institution is not null
-				? this.Ok(new EntityResponse { Id = institution.Id, Name = institution.Name })
-				: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
+			var data =
+				from i in this._context.Institutions
+				where i.Id == institutionId
+				select i;
+			return this.Ok(data);
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
+		}
+	}
+	/// <summary>
+	/// Gets all the institutions
+	/// </summary>
+	/// <returns>List of institutions in JSON format</returns>
+	[HttpGet(Routes.All)]
+	public ActionResult<IQueryable<Institution>> ListInstitutions() {
+		try {
+			var data =
+				from i in this._context.Institutions
+				select i;
+			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}

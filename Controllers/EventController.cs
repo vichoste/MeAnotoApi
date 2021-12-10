@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,7 +16,7 @@ namespace MeAnotoApi.Controllers;
 /// <summary>
 /// Controller for event
 /// </summary>
-[Authorize(Roles = UserRoles.Professor), ApiController, EnableCors("FrontendCors"), Route(Routes.Api + "/" + Entities.Event)]
+[ApiController, EnableCors("FrontendCors"), Route(Routes.Api + "/" + Entities.Event)]
 public class EventController : ControllerBase {
 	private readonly MeAnotoContext _context;
 	/// <summary>
@@ -26,45 +25,33 @@ public class EventController : ControllerBase {
 	/// <param name="context">Database context</param>
 	public EventController(MeAnotoContext context) => this._context = context;
 	/// <summary>
-	/// Gets all the events owned by the current professor
+	/// Gets an event
 	/// </summary>
-	/// <returns>List of owned events in JSON format</returns>
-	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<EntityResponse>>> GetEvent() {
+	/// <param name="eventId">Course ID</param>
+	/// <returns>Course object in JSON format</returns>
+	[HttpGet("{eventId}")]
+	public ActionResult<IQueryable<Event>> GetEvent(int eventId) {
 		try {
-			var name = this.HttpContext.User.Identity.Name;
-			var professor = this._context.Professors.First(p => p.UserName == name);
-			if (professor is null) {
-				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
-			}
-			var myEvents = this._context.Events.Where(e => e.Professor == professor);
-			var events = await myEvents.ToListAsync();
-			var response = new List<EntityResponse>();
-			foreach (var @event in events) {
-				response.Add(new EntityResponse { Id = @event.Id, Name = @event.Name, Owner = professor.UserName });
-			}
-			return response;
+			var data =
+				from e in this._context.Events
+				where e.Id == eventId
+				select e;
+			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
 	}
 	/// <summary>
-	/// Gets an event owned by the current professor
+	/// Gets all the events
 	/// </summary>
-	/// <param name="eventId">Course ID</param>
-	/// <returns>Course object in JSON format</returns>
-	[HttpGet("{eventId}")]
-	public async Task<ActionResult<EntityResponse>> GetEvent(int eventId) {
+	/// <returns>List of owned events in JSON format</returns>
+	[HttpGet(Routes.All)]
+	public ActionResult<IQueryable<Event>> ListEvents() {
 		try {
-			var @event = await this._context.Events.FindAsync(eventId);
-			var name = this.HttpContext.User.Identity.Name;
-			var professor = this._context.Professors.First(p => p.UserName == name);
-			return professor is null
-				? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
-				: !(@event.Professor == professor)
-				? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
-				: @event is not null ? this.Ok(new EntityResponse { Id = @event.Id, Name = @event.Name, Owner = professor.UserName })
-				: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
+			var data =
+				from e in this._context.Events
+				select e;
+			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
@@ -75,8 +62,8 @@ public class EventController : ControllerBase {
 	/// <param name="event">Event</param>
 	/// <param name="institutionId">Institution ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
-	[HttpPost("{institutionId}")]
-	public async Task<ActionResult<Event>> CreateEvent(Event @event, int institutionId) {
+	[Authorize(Roles = UserRoles.Professor), HttpPost("{institutionId}")]
+	public async Task<ActionResult<Response>> CreateEvent(Event @event, int institutionId) {
 		try {
 			var existing = await this._context.Events.FirstOrDefaultAsync(e => e.Name == @event.Name);
 			if (existing is not null) {
@@ -93,6 +80,7 @@ public class EventController : ControllerBase {
 			}
 			@event.Institution = institution;
 			@event.Professor = professor;
+			professor.Events.Add(@event);
 			_ = this._context.Events.Add(@event);
 			_ = await this._context.SaveChangesAsync();
 			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk, EntityResponse = new EntityResponse { Id = @event.Id, Name = @event.Name, Owner = @event.Professor.UserName } });

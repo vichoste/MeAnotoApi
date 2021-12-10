@@ -17,7 +17,7 @@ namespace MeAnotoApi.Controllers;
 /// <summary>
 /// Controller for event instance
 /// </summary>
-[Authorize(Roles = UserRoles.Professor), ApiController, EnableCors("FrontendCors"), Route(Routes.Api + "/" + UserRoles.Professor + "/" + Entities.EventInstance)]
+[ApiController, EnableCors("FrontendCors"), Route(Routes.Api + "/" + UserRoles.Professor + "/" + Entities.EventInstance)]
 public class EventInstanceProfessorController : ControllerBase {
 	private readonly MeAnotoContext _context;
 	/// <summary>
@@ -31,63 +31,47 @@ public class EventInstanceProfessorController : ControllerBase {
 	/// <param name="eventInstanceId">Event instance ID</param>
 	/// <returns>attendees in JSON format</returns>
 	[HttpGet("{eventInstanceId}/" + UserRoles.Attendee + "/" + Routes.Count)]
-	public async Task<ActionResult<Response>> GetAttendeeCount(int eventInstanceId) {
+	public ActionResult<IQueryable<int>> GetAttendeeCount(int eventInstanceId) {
 		try {
-			var eventInstance = await this._context.EventInstances.FindAsync(eventInstanceId);
-			if (eventInstance is null) {
-				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
-			}
-			var name = this.HttpContext.User.Identity.Name;
-			var professor = this._context.Professors.First(p => p.UserName == name);
-			return professor is null
-				? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
-				: eventInstance.Event.Professor != professor
-				? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
-				: this.Ok(new Response { Status = Statuses.Ok, Message = eventInstance.Attendees.Count.ToString() });
+			var data =
+				from ei in this._context.EventInstances
+				where ei.Id == eventInstanceId
+				select ei.Attendees.Count;
+			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
 	}
 	/// <summary>
-	/// Gets an event instance owned by the current professor
+	/// Gets an event instance
 	/// </summary>
 	/// <param name="eventInstanceId">Event instance ID</param>
 	/// <returns>Event instance object in JSON format</returns>
 	[HttpGet("{eventInstanceId}")]
-	public async Task<ActionResult<EntityResponse>> GetEventInstance(int eventInstanceId) {
+	public ActionResult<IQueryable<EventInstance>> GetEventInstance(int eventInstanceId) {
 		try {
-			var eventInstance = await this._context.EventInstances.FindAsync(eventInstanceId);
-			var name = this.HttpContext.User.Identity.Name;
-			var professor = this._context.Professors.First(p => p.UserName == name);
-			return professor is null
-				? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
-				: !(eventInstance.Event.Professor == professor)
-				? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
-				: eventInstance is not null ? this.Ok(new EntityResponse { Id = eventInstance.Id, Name = eventInstance.Name, Owner = professor.UserName })
-				: this.NotFound(new Response { Status = Statuses.NotFound, Message = Messages.NotFoundError });
+			var data =
+				from ei in this._context.EventInstances
+				where ei.Id == eventInstanceId
+				select ei;
+			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
 	}
 	/// <summary>
-	/// Gets all the event instances owned by the current professor
+	/// Gets all the event instances
 	/// </summary>
 	/// <returns>List of owned events in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public async Task<ActionResult<IEnumerable<EntityResponse>>> ListProfessorEventInstances() {
+	public ActionResult<IEnumerable<EventInstance>> ListEventInstances() {
 		try {
-			var name = this.HttpContext.User.Identity.Name;
-			var professor = this._context.Professors.First(p => p.UserName == name);
-			if (professor is null) {
-				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
-			}
-			var myEventInstances = this._context.EventInstances.Where(e => e.Event.Professor == professor);
-			var eventInstances = await myEventInstances.ToListAsync();
-			var response = new List<EntityResponse>();
-			foreach (var eventInstance in eventInstances) {
-				response.Add(new EntityResponse { Id = eventInstance.Id, Name = eventInstance.Name, Owner = professor.UserName });
-			}
-			return response;
+			var data =
+				from e in this._context.Events
+				join ei in this._context.EventInstances
+				on e.Id equals ei.Event.Id
+				select ei;
+			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
@@ -98,7 +82,7 @@ public class EventInstanceProfessorController : ControllerBase {
 	/// <param name="eventInstance">Event instance</param>
 	/// <param name="eventId">Event ID</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
-	[HttpPost("{eventId}")]
+	[Authorize(Roles = UserRoles.Professor), HttpPost("{eventId}")]
 	public async Task<ActionResult<EventInstance>> CreateEventInstance(EventInstance eventInstance, int eventId) {
 		try {
 			var name = this.HttpContext.User.Identity.Name;
@@ -110,17 +94,23 @@ public class EventInstanceProfessorController : ControllerBase {
 			if (existing is not null) {
 				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.DuplicatedError });
 			}
-			var @event = await this._context.Events.FindAsync(eventId);
-			if (@event is null) {
+			var data = await
+				(from e in this._context.Events
+				 join p in this._context.Professors
+				 on e.Professor.Id equals p.Id
+				 where p.UserName == professor.UserName
+				 select p).ToListAsync();
+			if (data.Count == 0) {
 				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 			}
-			if (@event.Professor != professor) {
+			var @event = await this._context.Events.FindAsync(eventId);
+			if (@event is null) {
 				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 			}
 			eventInstance.Event = @event;
 			_ = this._context.EventInstances.Add(eventInstance);
 			_ = await this._context.SaveChangesAsync();
-			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk, EntityResponse = new EntityResponse { Id = eventInstance.Id, Name = eventInstance.Name, Owner = @event.Professor.UserName } });
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk, EntityResponse = new EntityResponse { Id = eventInstance.Id, Name = eventInstance.Name, Owner = professor.UserName } });
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}

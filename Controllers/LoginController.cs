@@ -49,9 +49,9 @@ public class LoginController : ControllerBase {
 			if (user != null && await this._userManager.CheckPasswordAsync(user, model.Password)) {
 				var userRoles = await this._userManager.GetRolesAsync(user);
 				var authClaims = new List<Claim> {
-				new(ClaimTypes.Name, user.UserName),
-				new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-			};
+					new(ClaimTypes.Name, user.UserName),
+					new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+				};
 				foreach (var userRole in userRoles) {
 					authClaims.Add(new(ClaimTypes.Role, userRole));
 				}
