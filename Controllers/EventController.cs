@@ -61,7 +61,7 @@ public class EventController : ControllerBase {
 	/// </summary>
 	/// <param name="professorId">Professor ID</param>
 	/// <returns>List of the professor's events in JSON format</returns>
-	[Authorize(UserRoles.Professor), HttpGet(Routes.All + "/" + UserRoles.Professor + "/{professorId}")]
+	[Authorize(Roles = UserRoles.Professor), HttpGet(Routes.All + "/" + UserRoles.Professor + "/{professorId}")]
 	public ActionResult<IQueryable<Event>> ListProfessorEvents(int professorId) {
 		try {
 			var name = this.HttpContext.User.Identity.Name;
