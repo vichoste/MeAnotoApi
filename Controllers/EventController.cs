@@ -96,7 +96,7 @@ public class EventController : ControllerBase {
 	/// </summary>
 	/// <param name="event">Event</param>
 	/// <returns>OK if sucessfully in JSON format</returns>
-	[Authorize(Roles = UserRoles.Professor), HttpPost("{institutionId}")]
+	[Authorize(Roles = UserRoles.Professor), HttpPost]
 	public async Task<ActionResult<Response>> CreateEvent(Event @event) {
 		try {
 			var existing = await this._context.Events.FirstOrDefaultAsync(e => e.Name == @event.Name);
