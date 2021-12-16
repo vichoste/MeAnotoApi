@@ -51,4 +51,8 @@ public class Messages {
 	/// Cascade not implemented
 	/// </summary>
 	public const string InvalidOperationError = "Se intentó realizar una operación inválida";
+	/// <summary>
+	/// Event is full
+	/// </summary>
+	public const string EventFull = "Evento lleno";
 }

@@ -85,10 +85,37 @@ public class EventController : ControllerBase {
 		}
 	}
 	/// <summary>
+	/// Gets all the events owned by a attendee
+	/// </summary>
+	/// <returns>List of owned events in JSON format</returns>
+	[Authorize(Roles = UserRoles.Attendee), HttpGet(UserRoles.Attendee + "/" + Routes.All)]
+	public ActionResult<IEnumerable<EntityResponse>> ListAttendeeEvents() {
+		try {
+			var name = this.HttpContext.User.Identity.Name;
+			var attendee = this._context.Attendees.First(p => p.UserName == name);
+			if (attendee is null) {
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+			}
+			var data =
+				from a in this._context.Attendees
+				from e in this._context.Events
+				where e.Attendees.Contains(a)
+				select new EntityResponse {
+					Id = e.Id,
+					Name = e.Name,
+					Owner = e.Professor.UserName,
+					Capacity = e.Capacity
+				};
+			return this.Ok(data);
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
+		}
+	}
+	/// <summary>
 	/// Gets all the events owned by a professor
 	/// </summary>
 	/// <returns>List of the professor's events in JSON format</returns>
-	[Authorize(Roles = UserRoles.Professor), HttpGet(Routes.All + "/" + UserRoles.Professor)]
+	[Authorize(Roles = UserRoles.Professor), HttpGet(UserRoles.Professor + "/" + Routes.All)]
 	public ActionResult<IQueryable<EntityResponse>> ListProfessorEvents() {
 		try {
 			var name = this.HttpContext.User.Identity.Name;
@@ -133,34 +160,7 @@ public class EventController : ControllerBase {
 			professor.Events.Add(@event);
 			_ = this._context.Events.Add(@event);
 			_ = await this._context.SaveChangesAsync();
-			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk, EntityResponse = new EntityResponse { Id = @event.Id, Name = @event.Name, Owner = professor.UserName } });
-		} catch (Exception) {
-			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
-		}
-	}
-	/// <summary>
-	/// Gets all the events owned by a attendee
-	/// </summary>
-	/// <returns>List of owned events in JSON format</returns>
-	[Authorize(Roles = UserRoles.Attendee), HttpGet(Routes.All)]
-	public ActionResult<IEnumerable<EntityResponse>> ListAttendeeEvents() {
-		try {
-			var name = this.HttpContext.User.Identity.Name;
-			var attendee = this._context.Attendees.First(p => p.UserName == name);
-			if (attendee is null) {
-				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
-			}
-			var data =
-				from a in this._context.Attendees
-				from e in this._context.Events
-				where e.Attendees.Contains(a)
-				select new EntityResponse {
-					Id = e.Id,
-					Name = e.Name,
-					Owner = e.Professor.UserName,
-					Capacity = e.Capacity
-				};
-			return this.Ok(data);
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk, EntityResponse = new EntityResponse { Id = @event.Id, Name = @event.Name, Owner = professor.UserName, Capacity = @event.Capacity } });
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
@@ -170,7 +170,7 @@ public class EventController : ControllerBase {
 	/// </summary>
 	/// <param name="eventId">Event instance ID</param>
 	/// <returns>OK if enrolled successfully</returns>
-	[Authorize(Roles = UserRoles.Attendee), HttpPost("{eventId}/" + Routes.Enroll)]
+	[Authorize(Roles = UserRoles.Attendee), HttpPost(UserRoles.Attendee + "/{eventId}/" + Routes.Enroll)]
 	public async Task<ActionResult<Response>> EnrollAttendee(int eventId) {
 		try {
 			var name = this.HttpContext.User.Identity.Name;
@@ -182,17 +182,14 @@ public class EventController : ControllerBase {
 			if (@event is null) {
 				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
 			}
+			if (@event.Capacity <= 0) {
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.EventFull });
+			}
+			@event.Capacity--;
 			attendee.Events.Add(@event);
 			@event.Attendees.Add(attendee);
 			_ = await this._context.SaveChangesAsync();
-			return this.Ok(new Response {
-				Status = Statuses.Ok, Message = Messages.EnrolledOk, EntityResponse = new EntityResponse {
-					Id = @event.Id,
-					Name = @event.Name,
-					Owner = @event.Professor.UserName,
-					Capacity = @event.Capacity
-				}
-			});
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.EnrolledOk });
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
