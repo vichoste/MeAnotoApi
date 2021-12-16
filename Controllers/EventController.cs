@@ -26,9 +26,32 @@ public class EventController : ControllerBase {
 	/// <param name="context">Database context</param>
 	public EventController(MeAnotoContext context) => this._context = context;
 	/// <summary>
-	/// Gets the amount of attendees on a event instance
+	/// Checks if an attendee is in an event
 	/// </summary>
-	/// <param name="eventId">Event instance ID</param>
+	/// <param name="eventId">Event ID</param>
+	/// <returns>Attendee status on event</returns>
+	[Authorize(Roles = UserRoles.Attendee), HttpPost(UserRoles.Attendee + "/{eventId}/" + Routes.Check)]
+	public async Task<ActionResult<Response>> CheckAttendee(int eventId) {
+		try {
+			var name = this.HttpContext.User.Identity.Name;
+			var attendee = this._context.Attendees.First(p => p.UserName == name);
+			if (attendee is null) {
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError });
+			}
+			var @event = await this._context.Events.FindAsync(eventId);
+			return @event is null
+				? this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.BadRequestError })
+				: @event.Attendees.Any(a => a.UserName == attendee.UserName)
+				? this.Ok(new Response { Status = Statuses.Ok, Message = Messages.AlreadyAttending })
+				: (ActionResult<Response>)this.Ok(new Response { Status = Statuses.Ok, Message = Messages.NotInEvent });
+		} catch (Exception) {
+			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
+		}
+	}
+	/// <summary>
+	/// Gets the amount of attendees on an event
+	/// </summary>
+	/// <param name="eventId">Event ID</param>
 	/// <returns>attendees in JSON format</returns>
 	[HttpGet("{eventId}/" + UserRoles.Attendee + "/" + Routes.Count)]
 	public ActionResult<IQueryable<int>> GetAttendeeCount(int eventId) {
@@ -147,9 +170,9 @@ public class EventController : ControllerBase {
 		}
 	}
 	/// <summary>
-	/// Enrolls an attendee into an event instance
+	/// Enrolls an attendee into an event
 	/// </summary>
-	/// <param name="eventId">Event instance ID</param>
+	/// <param name="eventId">Event ID</param>
 	/// <returns>OK if enrolled successfully</returns>
 	[Authorize(Roles = UserRoles.Attendee), HttpPost(UserRoles.Attendee + "/{eventId}/" + Routes.Enroll)]
 	public async Task<ActionResult<Response>> EnrollAttendee(int eventId) {

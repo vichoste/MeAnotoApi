@@ -16,6 +16,10 @@ public class Routes {
 	/// </summary>
 	public const string Api = "api";
 	/// <summary>
+	/// Revisar
+	/// </summary>
+	public const string Check = "revisar";
+	/// <summary>
 	/// Login
 	/// </summary>
 	public const string Login = "login";

@@ -59,4 +59,8 @@ public class Messages {
 	/// Attendee is already attending
 	/// </summary>
 	public const string AlreadyAttending = "Asistente ya en evento";
+	/// <summary>
+	/// Attendee is not attending an event
+	/// </summary>
+	public const string NotInEvent = "Asistente no está en el evento";
 }
