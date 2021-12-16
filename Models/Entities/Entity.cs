@@ -16,5 +16,5 @@ public abstract class Entity {
 	/// Name
 	/// </summary>
 	[JsonPropertyName(JsonPropertyNames.Name)]
-	public string Name { get; set; }
+	public virtual string Name { get; set; }
 }

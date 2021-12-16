@@ -66,11 +66,11 @@ public class JsonPropertyNames {
 	/// <summary>
 	/// Creation date
 	/// </summary>
-	public const string Creation = "creación";
+	public const string Start = "inicio";
 	/// <summary>
 	/// Cancellation date
 	/// </summary>
-	public const string Cancellation = "cancelación";
+	public const string Ending = "finalización";
 	/// <summary>
 	/// User roles
 	/// </summary>

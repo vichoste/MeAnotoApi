@@ -11,10 +11,10 @@ public class Attendee : ApplicationUser {
 	/// <summary>
 	/// Creates an attendee
 	/// </summary>
-	public Attendee() => this.EventInstances = new HashSet<EventInstance>();
+	public Attendee() => this.Events = new HashSet<Event>();
 	/// <summary>
 	/// Event instances
 	/// </summary>
 	[JsonIgnore]
-	public virtual ICollection<EventInstance> EventInstances { get; set; }
+	public virtual ICollection<Event> Events { get; set; }
 }

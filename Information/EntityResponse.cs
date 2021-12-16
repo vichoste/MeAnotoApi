@@ -21,4 +21,9 @@ public class EntityResponse {
 	/// </summary>
 	[JsonPropertyName(JsonPropertyNames.Owner)]
 	public string Owner { get; set; }
+	/// <summary>
+	/// 
+	/// </summary>
+	[JsonPropertyName(JsonPropertyNames.Capacity)]
+	public int Capacity { get; set; }
 }

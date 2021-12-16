@@ -26,10 +26,6 @@ public class MeAnotoContext : IdentityDbContext<ApplicationUser> {
 	/// </summary>
 	public DbSet<Event> Events { get; set; }
 	/// <summary>
-	/// Event instances
-	/// </summary>
-	public DbSet<EventInstance> EventInstances { get; set; }
-	/// <summary>
 	/// Creates a database context
 	/// </summary>
 	/// <param name="options">Options associated with this context</param>
