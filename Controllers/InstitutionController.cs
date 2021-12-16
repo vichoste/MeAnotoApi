@@ -30,15 +30,12 @@ public class InstitutionController : ControllerBase {
 	/// <param name="institutionId">Event ID</param>
 	/// <returns>Event object in JSON format</returns>
 	[HttpGet("{institutionId}")]
-	public ActionResult<EntityResponse> GetInstitution(int institutionId) {
+	public ActionResult<Institution> GetInstitution(int institutionId) {
 		try {
 			var data =
 				from i in this._context.Institutions
 				where i.Id == institutionId
-				select new EntityResponse {
-					Id = i.Id,
-					Name = i.Name
-				};
+				select i;
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
@@ -49,14 +46,11 @@ public class InstitutionController : ControllerBase {
 	/// </summary>
 	/// <returns>List of institutions in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public ActionResult<IQueryable<EntityResponse>> ListInstitutions() {
+	public ActionResult<IQueryable<Institution>> ListInstitutions() {
 		try {
 			var data =
 				from i in this._context.Institutions
-				select new EntityResponse {
-					Id = i.Id,
-					Name = i.Name
-				};
+				select i;
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
@@ -76,7 +70,7 @@ public class InstitutionController : ControllerBase {
 			}
 			_ = this._context.Institutions.Add(institution);
 			_ = await this._context.SaveChangesAsync();
-			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk, EntityResponse = new EntityResponse { Id = institution.Id, Name = institution.Name } });
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}

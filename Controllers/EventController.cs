@@ -48,17 +48,12 @@ public class EventController : ControllerBase {
 	/// <param name="eventId">Event ID</param>
 	/// <returns>Event in JSON format</returns>
 	[HttpGet("{eventId}")]
-	public ActionResult<IQueryable<EntityResponse>> GetEvent(int eventId) {
+	public ActionResult<IQueryable<Event>> GetEvent(int eventId) {
 		try {
 			var data =
 				from e in this._context.Events
 				where e.Id == eventId
-				select new EntityResponse {
-					Id = e.Id,
-					Name = e.Name,
-					Owner = e.Professor.UserName,
-					Capacity = e.Capacity
-				};
+				select e;
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
@@ -69,16 +64,11 @@ public class EventController : ControllerBase {
 	/// </summary>
 	/// <returns>List of events in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public ActionResult<IQueryable<EntityResponse>> ListEvents() {
+	public ActionResult<IQueryable<Event>> ListEvents() {
 		try {
 			var data =
 				from e in this._context.Events
-				select new EntityResponse {
-					Id = e.Id,
-					Name = e.Name,
-					Owner = e.Professor.UserName,
-					Capacity = e.Capacity
-				};
+				select e;
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
@@ -89,7 +79,7 @@ public class EventController : ControllerBase {
 	/// </summary>
 	/// <returns>List of owned events in JSON format</returns>
 	[Authorize(Roles = UserRoles.Attendee), HttpGet(UserRoles.Attendee + "/" + Routes.All)]
-	public ActionResult<IEnumerable<EntityResponse>> ListAttendeeEvents() {
+	public ActionResult<IEnumerable<Event>> ListAttendeeEvents() {
 		try {
 			var name = this.HttpContext.User.Identity.Name;
 			var attendee = this._context.Attendees.First(p => p.UserName == name);
@@ -100,12 +90,7 @@ public class EventController : ControllerBase {
 				from a in this._context.Attendees
 				from e in this._context.Events
 				where e.Attendees.Contains(a)
-				select new EntityResponse {
-					Id = e.Id,
-					Name = e.Name,
-					Owner = e.Professor.UserName,
-					Capacity = e.Capacity
-				};
+				select e;
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
@@ -116,7 +101,7 @@ public class EventController : ControllerBase {
 	/// </summary>
 	/// <returns>List of the professor's events in JSON format</returns>
 	[Authorize(Roles = UserRoles.Professor), HttpGet(UserRoles.Professor + "/" + Routes.All)]
-	public ActionResult<IQueryable<EntityResponse>> ListProfessorEvents() {
+	public ActionResult<IQueryable<Event>> ListProfessorEvents() {
 		try {
 			var name = this.HttpContext.User.Identity.Name;
 			var professor = this._context.Professors.First(p => p.UserName == name);
@@ -128,11 +113,7 @@ public class EventController : ControllerBase {
 				join e in this._context.Events
 				on p equals e.Professor
 				where p == professor
-				select new EntityResponse {
-					Id = e.Id,
-					Name = e.Name,
-					Owner = e.Professor.UserName
-				};
+				select e;
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
@@ -160,7 +141,7 @@ public class EventController : ControllerBase {
 			professor.Events.Add(@event);
 			_ = this._context.Events.Add(@event);
 			_ = await this._context.SaveChangesAsync();
-			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk, EntityResponse = new EntityResponse { Id = @event.Id, Name = @event.Name, Owner = professor.UserName, Capacity = @event.Capacity } });
+			return this.Ok(new Response { Status = Statuses.Ok, Message = Messages.CreatedOk });
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
 		}
