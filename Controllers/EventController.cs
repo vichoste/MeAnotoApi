@@ -30,7 +30,7 @@ public class EventController : ControllerBase {
 	/// </summary>
 	/// <param name="eventId">Event ID</param>
 	/// <returns>Attendee status on event</returns>
-	[Authorize(Roles = UserRoles.Attendee), HttpPost(UserRoles.Attendee + "/{eventId}/" + Routes.Check)]
+	[Authorize(Roles = UserRoles.Attendee), HttpGet(UserRoles.Attendee + "/{eventId}/" + Routes.Check)]
 	public async Task<ActionResult<Response>> CheckAttendee(int eventId) {
 		try {
 			var name = this.HttpContext.User.Identity.Name;
