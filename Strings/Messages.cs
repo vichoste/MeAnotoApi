@@ -55,4 +55,8 @@ public class Messages {
 	/// Event is full
 	/// </summary>
 	public const string EventFull = "Evento lleno";
+	/// <summary>
+	/// Attendee is already attending
+	/// </summary>
+	public const string AlreadyAttending = "Asistente ya en evento";
 }

@@ -166,6 +166,9 @@ public class EventController : ControllerBase {
 			if (@event.Capacity <= 0) {
 				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.EventFull });
 			}
+			if (@event.Attendees.Any(a => a.UserName == attendee.UserName)) {
+				return this.BadRequest(new Response { Status = Statuses.BadRequest, Message = Messages.AlreadyAttending });
+			}
 			@event.Capacity--;
 			attendee.Events.Add(@event);
 			@event.Attendees.Add(attendee);
