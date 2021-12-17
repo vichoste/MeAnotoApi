@@ -30,12 +30,15 @@ public class InstitutionController : ControllerBase {
 	/// <param name="institutionId">Event ID</param>
 	/// <returns>Event object in JSON format</returns>
 	[HttpGet("{institutionId}")]
-	public ActionResult<Institution> GetInstitution(int institutionId) {
+	public ActionResult<InstitutionResponse> GetInstitution(int institutionId) {
 		try {
 			var data =
 				from i in this._context.Institutions
 				where i.Id == institutionId
-				select i;
+				select new InstitutionResponse {
+					Id = i.Id,
+					Name = i.Name
+				};
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
@@ -46,11 +49,15 @@ public class InstitutionController : ControllerBase {
 	/// </summary>
 	/// <returns>List of institutions in JSON format</returns>
 	[HttpGet(Routes.All)]
-	public ActionResult<IQueryable<Institution>> ListInstitutions() {
+	public ActionResult<IQueryable<InstitutionResponse>> ListInstitutions() {
 		try {
 			var data =
 				from i in this._context.Institutions
-				select i;
+				select new InstitutionResponse
+				{
+					Id = i.Id,
+					Name = i.Name
+				};
 			return this.Ok(data);
 		} catch (Exception) {
 			return this.BadRequest(new Response { Status = Statuses.InvalidOperationError, Message = Messages.InvalidOperationError });
